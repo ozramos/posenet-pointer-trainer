@@ -1,6 +1,5 @@
 <template lang="pug">
   #app
-    link(href='https://fonts.googleapis.com/icon?family=Material+Icons' rel='stylesheet')
     v-app
       v-app-bar(app clipped-right color='blue-grey' dark)
         v-app-bar-nav-icon(@click.stop='sidebarMain = !sidebarMain')
