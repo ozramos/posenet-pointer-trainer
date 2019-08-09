@@ -1,27 +1,38 @@
 <template lang="pug">
   #app
-    img(width='25%' src='./assets/logo.png')
-    HelloWorld(msg='Hello Vue in CodeSandbox!')
+    link(href='https://fonts.googleapis.com/icon?family=Material+Icons' rel='stylesheet')
+    v-app
+      v-app-bar(app clipped-right color='blue-grey' dark)
+        v-app-bar-nav-icon(@click.stop='sidebarMain = !sidebarMain')
+        v-toolbar-title PoseNet Head Pose
+
+      v-navigation-drawer(v-model='sidebarMain' app)
+        v-list(dense)
+          v-list-item(v-for='(item, id) in menu' v-bind:key='id')
+            v-list-item-action
+              v-icon {{item.icon}}
+            v-list-item-content
+              v-list-item-title {{item.label}}
+      Home
 </template>
 
 <script>
-import HelloWorld from "./components/Home";
+import Home from "./components/Home";
 
 export default {
   name: "App",
   components: {
-    HelloWorld
-  }
+    Home
+  },
+
+  data: () => ({
+    sidebarMain: true,
+    menu: [
+      { label: "Data", icon: "memory" },
+      { label: "Train", icon: "school" },
+      { label: "Use", icon: "android" },
+      { label: "Webcam", icon: "videocam" }
+    ]
+  })
 };
 </script>
-
-<style>
-#app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
