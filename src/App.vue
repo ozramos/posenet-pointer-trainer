@@ -1,7 +1,7 @@
 <template lang="pug">
   #app
     v-app
-      v-app-bar(app clipped-right color='blue-grey' dark)
+      v-app-bar(app clipped-right color='indigo' dark)
         v-app-bar-nav-icon(@click.stop='sidebarMain = !sidebarMain')
         v-toolbar-title PoseNet Head Pose
 
