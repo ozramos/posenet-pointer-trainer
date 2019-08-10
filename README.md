@@ -12,3 +12,10 @@ npm run build
 # RUn linters
 npm run lint
 ```
+
+
+---
+
+## Sources
+
+- 3D head: https://sketchfab.com/3d-models/face-e2b2143b03714b97afc9c87f8d75acb3
