@@ -8,32 +8,32 @@
       v-navigation-drawer(v-model='sidebarMain' app)
         Scene
         v-list(dense)
-          v-list-item(v-for='(item, id) in menu' v-bind:key='id')
+          v-list-item(v-for='(item, id) in menu' v-bind:key='id' v-bind:to='item.to')
             v-list-item-action
               v-icon {{item.icon}}
             v-list-item-content
               v-list-item-title {{item.label}}
-      Home
+
+      v-content
+        router-view
 </template>
 
 <script>
-import Home from "./components/Home";
 import Scene from "./components/Scene";
 
 export default {
   name: "App",
   components: {
-    Home,
     Scene
   },
 
   data: () => ({
     sidebarMain: true,
     menu: [
-      { label: "Data", icon: "memory" },
-      { label: "Train", icon: "school" },
-      { label: "Use", icon: "android" },
-      { label: "Webcam", icon: "videocam" }
+      { label: "About", icon: "info", to: { name: "Home" } },
+      { label: "Step 1. Collect Data", icon: "memory" },
+      { label: "Step 2. Train", icon: "school" },
+      { label: "Step 3. Use", icon: "android" }
     ],
     Scene: Scene
   })

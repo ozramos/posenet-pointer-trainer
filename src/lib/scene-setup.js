@@ -30,11 +30,9 @@ export default class {
       new BABYLON.Vector3(0, 0, 5),
       this.scene
     );
-    console.log("creating scene");
 
     BABYLON.SceneLoader.Append("./3d/", "scene.gltf", this.scene, scene => {
       this.head = scene.meshes[0];
-      console.log("created scene");
       this.head.rotationQuaternion = null;
       this.head.rotation.y = Math.PI;
       scene.createDefaultCameraOrLight(true, true, false);
