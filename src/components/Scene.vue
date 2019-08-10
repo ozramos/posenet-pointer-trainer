@@ -34,7 +34,7 @@ import { mapState } from "vuex";
 export default {
   name: "Scene",
 
-  computed: mapState(["posenet"]),
+  computed: mapState(["posenet", "Scene", "pose"]),
 
   watch: {
     "synthetic.yaw"(val) {
@@ -55,23 +55,17 @@ export default {
     // Active states
     isBusy: false,
 
-    // Pose data
-    pose: null,
-
     // Synthetic data
     synthetic: {
       yaw: 180,
       pitch: 0,
       roll: 0
-    },
-
-    // The babylon scene class
-    Scene: null
+    }
   }),
 
   mounted() {
     this.ctx = this.$refs.overlay.getContext("2d");
-    this.Scene = new sceneSetup(this.$refs.scene);
+    this.$store.commit("set", ["Scene", new sceneSetup(this.$refs.scene)]);
 
     // Events
     this.Bus.$on("startPoseNet", this.startPoseNet);
@@ -93,7 +87,10 @@ export default {
       this.$refs.overlay.height = this.$refs.scene.height;
 
       this.Scene.use(async () => {
-        this.pose = await this.posenet.estimateSinglePose(this.$refs.scene);
+        this.$store.commit("set", [
+          "pose",
+          await this.posenet.estimateSinglePose(this.$refs.scene)
+        ]);
         this.drawKeypoints();
       });
     },

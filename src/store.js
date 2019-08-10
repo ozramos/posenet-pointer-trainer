@@ -5,7 +5,19 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     // The posenet object
-    posenet: null
+    posenet: null,
+
+    // The last detected pose object
+    pose: null,
+
+    // The Babylon.js scene class
+    Scene: null,
+
+    // Training data
+    training: {
+      features: [],
+      labels: []
+    }
   },
 
   mutations: {

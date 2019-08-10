@@ -14,7 +14,7 @@ export default new Router({
       component: Home
     },
     {
-      path: "collect-data",
+      path: "/collect-data",
       name: "CollectData",
       component: CollectData
     }
