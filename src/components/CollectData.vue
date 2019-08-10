@@ -9,10 +9,6 @@ v-flex(xs12 lg4)
         v-btn(:to="{name: 'Home'}")
           v-icon chevron_left
           | About
-        v-spacer
-        v-btn.primary
-          | Collect Synthetic Data
-          v-icon(right) chevron_right
 </template>
 
 <script>

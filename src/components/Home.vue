@@ -9,14 +9,21 @@
           p This project will guide you through the process of training your own models. To begin, lets start by running PoseNet on the 3D scene.
         v-card-actions
           v-spacer
-          v-btn.primary(@click='startPoseNet' :loading='isBusy')
+          v-btn.primary(v-if='!posenet' @click='startPoseNet' :loading='isBusy')
             | Start PoseNet
-            v-icon(right) chevron_right
+            v-icon chevron_right
+          v-btn.primary(v-else @click='nextView')
+            | Collect Data
+            v-icon chevron_right
 </template>
 
 <script>
+import { mapState } from "vuex";
+
 export default {
   name: "Home",
+
+  computed: mapState(["posenet"]),
 
   data: () => ({
     isBusy: false
@@ -40,6 +47,14 @@ export default {
      */
     onPoseNetStarted() {
       this.isBusy = false;
+      this.nextView();
+    },
+
+    /**
+     * Navigates to the next view
+     */
+    nextView() {
+      this.$router.push({ name: "CollectData" });
     }
   }
 };
