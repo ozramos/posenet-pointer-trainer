@@ -9,7 +9,7 @@
           p This project will guide you through the process of training your own models. To begin, lets start by running PoseNet on the 3D scene.
         v-card-actions
           v-spacer
-          v-btn.primary(@click='startPoseNet')
+          v-btn.primary(@click='startPoseNet' :loading='isBusy')
             | Start PoseNet
             v-icon(right) chevron_right
 </template>
@@ -18,8 +18,29 @@
 export default {
   name: "Home",
 
+  data: () => ({
+    isBusy: false
+  }),
+
+  mounted() {
+    this.Bus.$on("PoseNetStarted", this.onPoseNetStarted);
+  },
+
   methods: {
-    startPoseNet() {}
+    /**
+     * Called when "Start PoseNet" is clicked
+     */
+    startPoseNet() {
+      this.isBusy = true;
+      this.Bus.$emit("startPoseNet");
+    },
+
+    /**
+     * Navigates to the next vue
+     */
+    onPoseNetStarted() {
+      this.isBusy = false;
+    }
   }
 };
 </script>

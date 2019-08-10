@@ -10,9 +10,6 @@
                 canvas#scene(ref='scene' width=640 height=480)
                 canvas#overlay(ref='overlay' width=640 height=480)
 
-            v-card-actions
-              v-btn.primary(@click='startPoseNet' :loading='isBusy' v-if='!posenet') Start PoseNet
-
         v-flex(xs12 sm6)
           v-card
             v-card-title Adjustments
@@ -32,9 +29,12 @@
 import sceneSetup from "../lib/scene-setup.js";
 //import * as tf from '@tensorflow/tfjs'
 import * as Posenet from "@tensorflow-models/posenet";
+import { mapState } from "vuex";
 
 export default {
   name: "Scene",
+
+  computed: mapState(["posenet"]),
 
   watch: {
     "synthetic.yaw"(val) {
@@ -55,9 +55,6 @@ export default {
     // Active states
     isBusy: false,
 
-    // Posenet model
-    posenet: null,
-
     // Pose data
     pose: null,
 
@@ -75,6 +72,9 @@ export default {
   mounted() {
     this.ctx = this.$refs.overlay.getContext("2d");
     this.Scene = new sceneSetup(this.$refs.scene);
+
+    // Events
+    this.Bus.$on("startPoseNet", this.startPoseNet);
   },
 
   methods: {
@@ -82,9 +82,13 @@ export default {
      * Starts posenet and draws keypoints on every frame
      */
     async startPoseNet() {
+      // Load posenet
       this.isBusy = true;
-      this.posenet = await new Posenet.load();
+      this.$store.commit("set", ["posenet", await new Posenet.load()]);
+      this.Bus.$emit("PoseNetStarted");
       this.isBusy = false;
+
+      // Make sure overlay's canavas matches babylon's
       this.$refs.overlay.width = this.$refs.scene.width;
       this.$refs.overlay.height = this.$refs.scene.height;
 

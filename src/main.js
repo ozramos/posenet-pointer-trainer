@@ -8,7 +8,7 @@ import "vuetify/dist/vuetify.min.css";
 
 Vue.config.productionTip = false;
 Vue.use(Vuetify);
-Vue.prototype.$bus = new Vue();
+Vue.prototype.Bus = new Vue();
 
 window.App = new Vue({
   router,
