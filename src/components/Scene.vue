@@ -36,6 +36,12 @@ import * as Posenet from '@tensorflow-models/posenet'
 export default {
   name: "Scene",
 
+  watch: {
+    yaw (val) {this.Scene.head.rotation.y = -val * Math.PI / 180},
+    pitch (val) {this.Scene.head.rotation.x = -val * Math.PI / 180},
+    roll (val) {this.Scene.head.rotation.z = -val * Math.PI / 180}
+  },
+
   data: () => ({
     // Active states
     isBusy: false,
@@ -44,7 +50,7 @@ export default {
     posenet: null,
 
     // Pose
-    yaw: 0,
+    yaw: 180,
     pitch: 0,
     roll: 0,
 
