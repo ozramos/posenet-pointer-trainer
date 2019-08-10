@@ -8,8 +8,8 @@
       v-content
         v-container(grid-list-xl)
           v-layout(row wrap)
-            Scene
             router-view
+            Scene
 </template>
 
 <script>
