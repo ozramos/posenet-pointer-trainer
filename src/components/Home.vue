@@ -6,6 +6,11 @@
           v-card-title About
           v-card-text
             p Welcome to the <a href="https://ozramos.com/Posenet-head-pose">posenet-head-pose</a> project. PoseNet Head Pose is a set of tiny models that takes in <a href="https://github.com/tensorflow/tfjs-models/tree/master/posenet">PoseNet keypoints</a> as input and outputs the inferred head's yaw, pitch, and roll.
+          v-card-actions
+            v-spacer
+            v-btn.primary(:to="{name: 'CollectData'}")
+              | Collect Synthetic Data
+              v-icon(right) chevron_right
 </template>
 
 <script>

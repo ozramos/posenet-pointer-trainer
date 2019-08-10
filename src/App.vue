@@ -31,7 +31,11 @@ export default {
     sidebarMain: true,
     menu: [
       { label: "About", icon: "info", to: { name: "Home" } },
-      { label: "Step 1. Collect Data", icon: "memory" },
+      {
+        label: "Step 1. Collect Data",
+        icon: "memory",
+        to: { name: "CollectData" }
+      },
       { label: "Step 2. Train", icon: "school" },
       { label: "Step 3. Use", icon: "android" }
     ],
