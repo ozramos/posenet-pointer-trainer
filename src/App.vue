@@ -1,15 +1,21 @@
 <template lang="pug">
-  #app
-    v-app
-      v-app-bar(app clipped-right color='indigo' dark)
-        v-container
-          v-toolbar-title PoseNet Head Pose
+  v-app
+    v-app-bar(app clipped-right color='indigo' dark)
+      v-app-bar-nav-icon(@click='sidebar.main = !sidebar.main')
+      v-toolbar-title PoseNet Head Pose
 
-      v-content
-        v-container(grid-list-xl)
-          v-layout(row wrap)
-            router-view
-            Scene
+    v-navigation-drawer(app v-model='sidebar.main')
+      v-list(dense)
+        v-list-item(v-for='item in menu' :to='item.to')
+          v-list-item-action
+            v-icon {{item.icon}}
+          v-list-item-content
+            v-list-item-title {{item.label}}
+    v-content
+      v-container(grid-list-xl)
+        v-layout(row wrap)
+          router-view
+          Scene
 </template>
 
 <script>
@@ -22,7 +28,7 @@ export default {
   },
 
   data: () => ({
-    sidebarMain: true,
+    sidebar: { main: true },
     menu: [
       { label: "About", icon: "info", to: { name: "Home" } },
       {
@@ -30,8 +36,8 @@ export default {
         icon: "memory",
         to: { name: "CollectData" }
       },
-      { label: "Step 2. Train", icon: "school" },
-      { label: "Step 3. Use", icon: "android" }
+      { label: "Step 2. Train", icon: "school", to: { name: "Training" } },
+      { label: "Step 3. Use Model", icon: "android", to: { name: "UseModel" } }
     ],
     Scene: Scene
   })
