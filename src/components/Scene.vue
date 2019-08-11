@@ -14,20 +14,19 @@
           v-card
             v-card-title Adjustments
             v-card-text
-              v-slider(v-model='synthetic.yaw' label='Yaw' :max='360')
+              v-slider(v-model='synthetic.yaw' label='Yaw' v-bind:max='360')
                 template(v-slot:append)
                   v-text-field(v-model='synthetic.yaw' type='number' style='width: 60px')
-              v-slider(v-model='synthetic.pitch' label='Pitch' :max='360')
+              v-slider(v-model='synthetic.pitch' label='Pitch' v-bind:max='360')
                 template(v-slot:append)
                   v-text-field(v-model='synthetic.pitch' type='number' style='width: 60px')
-              v-slider(v-model='synthetic.roll' label='Roll' :max='360')
+              v-slider(v-model='synthetic.roll' label='Roll' v-bind:max='360')
                 template(v-slot:append)
                   v-text-field(v-model='synthetic.roll' type='number' style='width: 60px')
 </template>
 
 <script>
 import sceneSetup from "../lib/scene-setup.js";
-//import * as tf from '@tensorflow/tfjs'
 import * as Posenet from "@tensorflow-models/posenet";
 import { mapState } from "vuex";
 
