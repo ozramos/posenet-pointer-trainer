@@ -10,6 +10,9 @@ export default new Vuex.Store({
     // The last detected pose object
     pose: null,
 
+    // The model
+    model: null,
+
     // The Babylon.js scene class
     Scene: null,
 

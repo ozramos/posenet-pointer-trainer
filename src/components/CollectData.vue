@@ -25,9 +25,13 @@ v-flex(xs12 lg4)
           v-card-text
             p You can persist the collected data either locally or as a file. Note that this is just the data, the model will be created in the following steps.
           v-card-actions
-            v-btn.primary(@click='downloadJSON') Download
+            v-btn.primary(@click='downloadJSON')
+              v-icon.mr-2 save_alt
+              | Download
             v-spacer
-            v-btn.primary(@click='saveTrainingToLocalStorage') localStorage
+            v-btn.primary(@click='saveTrainingToLocalStorage')
+              v-icon.mr-2 save
+              | localStorage
 
         //- Snackbars
         v-snackbar(v-model='snackbar.downloaded') Download complete
@@ -72,14 +76,38 @@ export default {
      * Loop numSamples, collecting data with each loop
      */
     collectData() {
-      const numSamples = this.numSamples;
       let self = this;
       let curSampleIndex = 0;
       let training = { features: [], labels: [] };
       this.isBusy = true;
 
       this.Scene.use(function() {
-        if (curSampleIndex < numSamples) {
+        if (curSampleIndex < self.numSamples) {
+          // Labels = [Pitch, Yaw, Roll]
+          if (self.hasValidKeypoints(self.pose)) {
+            curSampleIndex++;
+
+            training.labels.push([
+              this.head.rotation.x,
+              this.head.rotation.y,
+              this.head.rotation.z
+            ]);
+
+            // Features [x1, y1...x5, y5]
+            training.features.push([
+              self.pose.keypoints[0].position.x / this.$canvas.width,
+              self.pose.keypoints[0].position.y / this.$canvas.height,
+              self.pose.keypoints[1].position.x / this.$canvas.width,
+              self.pose.keypoints[1].position.y / this.$canvas.height,
+              self.pose.keypoints[2].position.x / this.$canvas.width,
+              self.pose.keypoints[2].position.y / this.$canvas.height,
+              self.pose.keypoints[3].position.x / this.$canvas.width,
+              self.pose.keypoints[3].position.y / this.$canvas.height,
+              self.pose.keypoints[4].position.x / this.$canvas.width,
+              self.pose.keypoints[4].position.y / this.$canvas.height
+            ]);
+          }
+
           this.head.rotation.x = Math.asin(Math.random() - 0.5);
           this.head.rotation.y = Math.PI + Math.asin(Math.random() - 0.5);
           this.head.rotation.z = Math.asin((Math.random() - 0.5) / 2);
@@ -88,32 +116,11 @@ export default {
           this.head.position.y = Math.random() * 2000 - 1000;
           this.head.position.z = Math.random() * -2000 - 1000;
 
-          // Features [x1, y1...x5, y5]
-          training.features.push([
-            self.pose.keypoints[0].position.x / this.$canvas.width,
-            self.pose.keypoints[0].position.y / this.$canvas.height,
-            self.pose.keypoints[1].position.x / this.$canvas.width,
-            self.pose.keypoints[1].position.y / this.$canvas.height,
-            self.pose.keypoints[2].position.x / this.$canvas.width,
-            self.pose.keypoints[2].position.y / this.$canvas.height,
-            self.pose.keypoints[3].position.x / this.$canvas.width,
-            self.pose.keypoints[3].position.y / this.$canvas.height,
-            self.pose.keypoints[4].position.x / this.$canvas.width,
-            self.pose.keypoints[4].position.y / this.$canvas.height
-          ]);
-
-          // Labels = [Pitch, Yaw, Roll]
-          training.labels.push([
-            this.head.rotation.x,
-            this.head.rotation.y,
-            this.head.rotation.z
-          ]);
           // Enable save buttons
-        } else if (curSampleIndex === numSamples) {
+        } else {
           self.isBusy = false;
           self.$store.commit("set", ["training", training]);
         }
-        curSampleIndex++;
       });
     },
 
@@ -123,6 +130,14 @@ export default {
     saveTrainingToLocalStorage() {
       localStorage.setItem("training", JSON.stringify(this.training));
       this.snackbar.savedJSON = true;
+    },
+
+    /**
+     * Determines if the current pose has at least one keypoint
+     */
+    hasValidKeypoints(pose) {
+      const keypoints = pose.keypoints.slice(0, 5);
+      return keypoints.some(point => point.score > 0.7);
     },
 
     /**

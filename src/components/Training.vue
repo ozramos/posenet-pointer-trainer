@@ -5,6 +5,10 @@ v-flex(xs12 lg4)
       v-flex(xs12 sm6 lg12)
         v-card
           v-card-title Step 2. Training
+          v-card-text
+            v-text-field(label='Number of Epochs' v-model='numEpochs' filled)
+            v-text-field(label='Batch Size' v-model='batchSize' filled)
+            v-text-field(label='Learning Rate' v-model='learningRate' filled)
           v-card-actions
             v-btn(:to='{name: "CollectData"}')
               v-icon chevron_left
@@ -14,7 +18,7 @@ v-flex(xs12 lg4)
               | Start Training
               v-icon.ml-1 school
       v-flex(xs12 sm6 lg12)
-        v-card(color='amber darken-2')
+        v-card(color='amber lighten-4')
           v-card-title Visualizations
           v-card-text
             div(ref='visualizations')
@@ -25,7 +29,7 @@ v-flex(xs12 lg4)
 
 <script>
 import * as tf from "@tensorflow/tfjs";
-// import * as tfvis from "@tensorflow/tfjs-vis";
+import * as tfvis from "@tensorflow/tfjs-vis";
 import { mapState } from "vuex";
 
 export default {
@@ -36,13 +40,18 @@ export default {
 
     rawData: {},
     tensors: {},
+    trainingLogs: [],
+
+    numEpochs: 100,
+    learningRate: 0.001,
+    batchSize: 50,
 
     snackbar: {
       modelTrained: false
     }
   }),
 
-  computed: mapState(["training"]),
+  computed: mapState(["training", "model"]),
 
   methods: {
     /**
@@ -70,9 +79,11 @@ export default {
       );
 
       // Create the model
-      const model = this.createLinearRegressionModel(this.rawData);
-      console.log(model);
-      this.compileAndTrain(model);
+      this.$store.commit("set", [
+        "model",
+        this.createLinearRegressionModel(this.rawData)
+      ]);
+      this.compileAndTrain(this.model, this.tensors);
     },
 
     /**
@@ -150,7 +161,32 @@ export default {
       return model;
     },
 
-    compileAndTrain() {
+    /**
+     * Trains the model
+     */
+    async compileAndTrain(model, tensors) {
+      model.compile({
+        optimizer: tf.train.sgd(+this.learningRate),
+        loss: "meanSquaredError"
+      });
+
+      await model.fit(tensors.trainFeatures, tensors.trainPitch, {
+        batchSize: +this.batchSize,
+        epochs: +this.numEpochs,
+        validationSplit: 0.3,
+        callbacks: {
+          onEpochEnd: async (epoch, logs) => {
+            console.log(`⏳ Epoch ${epoch + 1} of ${this.numEpochs} completed`);
+            this.trainingLogs.push(logs);
+            tfvis.show.history(this.$refs.visualizations, this.trainingLogs, [
+              "loss",
+              "val_loss"
+            ]);
+          }
+        }
+      });
+
+      this.isBusy = false;
       this.snackbar.modelTrained = true;
     }
   }
