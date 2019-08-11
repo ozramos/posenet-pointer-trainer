@@ -23,8 +23,26 @@ v-flex(xs12 lg4)
           v-card-text
             div(ref='visualizations')
 
-        //- Snackbars
-        v-snackbar(v-model='snackbar.modelTrained') Model training complete 🎉
+        //- Modal
+        v-dialog(v-model='isModalVisible' max-width=600)
+          v-card
+            v-card-title 🎉 Model Ready
+            v-card-text
+              p Here is some feedback about your model:
+              p Final train-set loss: {{feedback.trainLoss}}
+              p Final validation-set loss: {{feedback.valLoss}}
+              p Final test-set loss: {{feedback.testLoss}}
+            v-card-actions
+              v-btn.primary(@click='downloadJSON')
+                v-icon.mr-2 save_alt
+                | Download
+              v-btn.primary(@click='saveToLocalStorage')
+                v-icon.mr-2 save
+                | localStorage
+              v-spacer
+              v-btn.primary(:to='{name: "UseModel"}')
+                | Use the model
+                v-icon.mr-2 chevron_right
 </template>
 
 <script>
@@ -42,13 +60,17 @@ export default {
     tensors: {},
     trainingLogs: [],
 
+    feedback: {
+      trainLoss: 0,
+      validationSetLoss: 0,
+      testSetLoss: 0
+    },
+
     numEpochs: 100,
     learningRate: 0.001,
-    batchSize: 50,
+    batchSize: 32,
 
-    snackbar: {
-      modelTrained: false
-    }
+    isModalVisible: false
   }),
 
   computed: mapState(["training", "model"]),
@@ -186,8 +208,32 @@ export default {
         }
       });
 
+      console.log("🎉 Training complete! Now running tests...");
+      const result = model.evaluate(tensors.testFeatures, tensors.testPitch, {
+        batchSize: this.batchSize
+      });
+      this.feedback.testLoss = result.dataSync()[0];
+      this.feedback.trainLoss = this.trainingLogs[
+        this.trainingLogs.length - 1
+      ].loss;
+      this.feedback.valLoss = this.trainingLogs[
+        this.trainingLogs.length - 1
+      ].val_loss;
+
       this.isBusy = false;
-      this.snackbar.modelTrained = true;
+      this.isModalVisible = true;
+    },
+
+    async saveToLocalStorage() {
+      this.isBusy = true;
+      await this.model.save("localstorage://posenetCursor");
+      this.isBusy = false;
+    },
+
+    async downloadJSON() {
+      this.isBusy = true;
+      await this.model.save("downloads://posenetCursor");
+      this.isBusy = false;
     }
   }
 };
