@@ -12,14 +12,14 @@ v-flex(xs12 lg4)
               v-icon chevron_left
               | About
             v-spacer
-            v-btn.primary(v-if='!training.features.length' @click='collectData' v-bind:loading='isBusy')
+            v-btn.primary(v-if='!training.features.length' @click='collectData' :loading='isBusy')
               | Collect Data
               v-icon.ml-1 assignment
-            v-btn.primary(v-else v-bind:to='{name: "Training"}')
+            v-btn.primary(v-else :to='{name: "Training"}')
               | Training
               v-icon.ml-1 chevron_right
 
-      v-flex(v-if='training.features.length' v-bind:class='gridClasses')
+      v-flex(v-if='training.features.length' :class='gridClasses')
         v-card.mt-3(color='green lighten-3')
           v-card-title (optional) Save Data
           v-card-text

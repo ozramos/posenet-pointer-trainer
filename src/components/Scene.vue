@@ -14,13 +14,13 @@
           v-card
             v-card-title Adjustments
             v-card-text
-              v-slider(v-model='synthetic.yaw' label='Yaw' v-bind:max='360')
+              v-slider(v-model='synthetic.yaw' label='Yaw' :max='360')
                 template(v-slot:append)
                   v-text-field(v-model='synthetic.yaw' type='number' style='width: 60px')
-              v-slider(v-model='synthetic.pitch' label='Pitch' v-bind:max='360')
+              v-slider(v-model='synthetic.pitch' label='Pitch' :max='360')
                 template(v-slot:append)
                   v-text-field(v-model='synthetic.pitch' type='number' style='width: 60px')
-              v-slider(v-model='synthetic.roll' label='Roll' v-bind:max='360')
+              v-slider(v-model='synthetic.roll' label='Roll' :max='360')
                 template(v-slot:append)
                   v-text-field(v-model='synthetic.roll' type='number' style='width: 60px')
 </template>
@@ -75,6 +75,8 @@ export default {
      * Starts posenet and draws keypoints on every frame
      */
     async startPoseNet() {
+      let dimensions = { width: 0, height: 0 };
+
       // Load posenet
       this.isBusy = true;
       this.$store.commit("set", ["posenet", await new Posenet.load()]);
@@ -82,8 +84,9 @@ export default {
       this.isBusy = false;
 
       // Make sure overlay's canavas matches babylon's
-      this.$refs.overlay.width = this.$refs.scene.width;
-      this.$refs.overlay.height = this.$refs.scene.height;
+      dimensions.width = this.$refs.overlay.width = this.$refs.scene.width;
+      dimensions.height = this.$refs.overlay.height = this.$refs.scene.height;
+      this.$store.commit("set", ["canvas", dimensions]);
 
       this.Scene.use(async () => {
         this.$store.commit("set", [

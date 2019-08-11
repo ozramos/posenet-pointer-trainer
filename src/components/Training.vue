@@ -14,7 +14,7 @@ v-flex(xs12 lg4)
               v-icon chevron_left
               | Collect Data
             v-spacer
-            v-btn.primary(@click='startTraining' v-bind:loading='isBusy')
+            v-btn.primary(@click='startTraining' :loading='isBusy')
               | Start Training
               v-icon.ml-1 school
       v-flex(xs12 sm6 lg12)
@@ -226,13 +226,13 @@ export default {
 
     async saveToLocalStorage() {
       this.isBusy = true;
-      await this.model.save("localstorage://posenetCursor");
+      await this.model.save("localstorage://posenetPointer");
       this.isBusy = false;
     },
 
     async downloadJSON() {
       this.isBusy = true;
-      await this.model.save("downloads://posenetCursor");
+      await this.model.save("downloads://posenetPointer");
       this.isBusy = false;
     }
   }

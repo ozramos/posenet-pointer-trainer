@@ -20,6 +20,11 @@ export default new Vuex.Store({
     training: {
       features: [],
       labels: []
+    },
+
+    canvas: {
+      width: 0,
+      height: 0
     }
   },
 
