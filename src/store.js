@@ -1,9 +1,15 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import { set } from "lodash";
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    // Different loading states
+    isLoading: {
+      posenet: false
+    },
+
     // The posenet object
     posenet: null,
 
@@ -35,7 +41,7 @@ export default new Vuex.Store({
      * @param {*} payload In the form [key, value]
      */
     set(state, payload) {
-      this.state[payload[0]] = payload[1];
+      set(state, payload[0], payload[1]);
     }
   }
 });

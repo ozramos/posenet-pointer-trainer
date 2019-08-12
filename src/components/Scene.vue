@@ -33,7 +33,7 @@ import { mapState } from "vuex";
 export default {
   name: "Scene",
 
-  computed: mapState(["posenet", "Scene", "pose"]),
+  computed: mapState(["posenet", "Scene", "pose", "isLoading"]),
 
   watch: {
     "synthetic.yaw"(val) {
@@ -51,9 +51,6 @@ export default {
     // The drawing context for posenet keypoints
     ctx: null,
 
-    // Active states
-    isBusy: false,
-
     // Synthetic data
     synthetic: {
       yaw: 180,
@@ -67,21 +64,22 @@ export default {
     this.$store.commit("set", ["Scene", new sceneSetup(this.$refs.scene)]);
 
     // Events
-    this.Bus.$on("startPoseNet", this.startPoseNet);
+    this.Bus.$on("startPosenet", this.startPosenet);
   },
 
   methods: {
     /**
      * Starts posenet and draws keypoints on every frame
      */
-    async startPoseNet() {
+    async startPosenet() {
       let dimensions = { width: 0, height: 0 };
 
       // Load posenet
-      this.isBusy = true;
+      console.log("startingposenet");
+      this.$store.commit("set", ["isLoading.posenet", true]);
       this.$store.commit("set", ["posenet", await new Posenet.load()]);
+      this.$store.commit("set", ["isLoading.posenet", false]);
       this.Bus.$emit("PoseNetStarted");
-      this.isBusy = false;
 
       // Make sure overlay's canavas matches babylon's
       dimensions.width = this.$refs.overlay.width = this.$refs.scene.width;

@@ -4,7 +4,7 @@ v-flex(xs12 lg4)
     v-card
       v-card-title Use Model
       v-card-actions
-        v-btn.primary(v-if='!posenet' @click='startPoseNet' :loading='isBusy')
+        v-btn.primary(v-if='!posenet' @click='startPosenet' :loading='isBusy')
           | Start PoseNet
           v-icon chevron_right      
 </template>
@@ -68,9 +68,9 @@ export default {
     /**
      * Called when "Start PoseNet" is clicked
      */
-    startPoseNet() {
+    startPosenet() {
       this.isBusy = true;
-      this.Bus.$emit("startPoseNet");
+      this.Bus.$emit("startPosenet");
     },
 
     /**
