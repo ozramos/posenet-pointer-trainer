@@ -77,42 +77,45 @@ export default {
       this.Bus.$emit("startPosenet");
       this.isCollecting = true;
 
-      this.Scene.use("collectData", function() {
-        if (!self.pose) return;
+      this.Bus.$on("newPose", pose => {
+        if (!this.isCollecting) return;
 
         if (curSampleIndex < self.numSamples) {
           // Labels = [Pitch, Yaw, Roll]
-          if (self.hasValidKeypoints(self.pose)) {
+          if (self.hasValidKeypoints(pose)) {
             curSampleIndex++;
 
             training.labels.push([
-              this.head.rotation.x,
-              this.head.rotation.y,
-              this.head.rotation.z
+              this.Scene.head.rotation.x,
+              this.Scene.head.rotation.y,
+              this.Scene.head.rotation.z
             ]);
 
             // Features [x1, y1...x5, y5]
             training.features.push([
-              self.pose.keypoints[0].position.x / this.$canvas.width,
-              self.pose.keypoints[0].position.y / this.$canvas.height,
-              self.pose.keypoints[1].position.x / this.$canvas.width,
-              self.pose.keypoints[1].position.y / this.$canvas.height,
-              self.pose.keypoints[2].position.x / this.$canvas.width,
-              self.pose.keypoints[2].position.y / this.$canvas.height,
-              self.pose.keypoints[3].position.x / this.$canvas.width,
-              self.pose.keypoints[3].position.y / this.$canvas.height,
-              self.pose.keypoints[4].position.x / this.$canvas.width,
-              self.pose.keypoints[4].position.y / this.$canvas.height
+              pose.keypoints[0].position.x / this.Scene.$canvas.width,
+              pose.keypoints[0].position.y / this.Scene.$canvas.height,
+              pose.keypoints[1].position.x / this.Scene.$canvas.width,
+              pose.keypoints[1].position.y / this.Scene.$canvas.height,
+              pose.keypoints[2].position.x / this.Scene.$canvas.width,
+              pose.keypoints[2].position.y / this.Scene.$canvas.height,
+              pose.keypoints[3].position.x / this.Scene.$canvas.width,
+              pose.keypoints[3].position.y / this.Scene.$canvas.height,
+              pose.keypoints[4].position.x / this.Scene.$canvas.width,
+              pose.keypoints[4].position.y / this.Scene.$canvas.height
             ]);
           }
 
-          this.head.rotation.x = ((Math.random() * 70 - 35) * Math.PI) / 180;
-          this.head.rotation.y = ((Math.random() * 70 - 35) * Math.PI) / 180;
-          this.head.rotation.z = ((Math.random() * 70 - 35) * Math.PI) / 180;
+          this.Scene.head.rotation.x =
+            ((Math.random() * 70 - 35) * Math.PI) / 180;
+          this.Scene.head.rotation.y =
+            ((Math.random() * 70 - 35) * Math.PI) / 180;
+          this.Scene.head.rotation.z =
+            ((Math.random() * 70 - 35) * Math.PI) / 180;
 
-          this.head.position.x = Math.random() * -10 + 5;
-          this.head.position.y = Math.random() * -6 + 3;
-          this.head.position.z = Math.random() * -10 + 1;
+          this.Scene.head.position.x = Math.random() * -10 + 5;
+          this.Scene.head.position.y = Math.random() * -6 + 3;
+          this.Scene.head.position.z = Math.random() * -10 + 1;
 
           // Enable save buttons
         } else {
