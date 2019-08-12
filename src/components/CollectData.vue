@@ -53,12 +53,6 @@ export default {
     }
   },
 
-  mounted() {
-    if (!this.posenet) {
-      this.$router.push({ name: "Home" });
-    }
-  },
-
   data: () => ({
     isBusy: false,
     numSamples: 500,
