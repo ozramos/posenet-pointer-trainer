@@ -102,8 +102,8 @@ export default {
               [1, 10]
             );
 
-            const prediction = this.model.predict(pose);
-            console.log("Rotation X", (prediction.dataSync() * 180) / Math.PI);
+            const prediction = this.model.predict(pose).dataSync();
+            console.log("Rotation X", prediction, prediction * 180);
           });
         });
       }

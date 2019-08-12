@@ -106,9 +106,9 @@ export default {
             ]);
           }
 
-          this.head.rotation.x = Math.asin(Math.random() - 0.5);
-          this.head.rotation.y = Math.asin(Math.random() - 0.5);
-          this.head.rotation.z = Math.asin(Math.random() - 0.5);
+          this.head.rotation.x = ((Math.random() * 70 - 35) * Math.PI) / 180;
+          this.head.rotation.y = ((Math.random() * 70 - 35) * Math.PI) / 180;
+          this.head.rotation.z = ((Math.random() * 70 - 35) * Math.PI) / 180;
 
           this.head.position.x = Math.random() * -10 + 5;
           this.head.position.y = Math.random() * -6 + 3;

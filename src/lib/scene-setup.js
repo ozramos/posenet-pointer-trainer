@@ -45,7 +45,7 @@ export default class {
       this.head.scaling = new BABYLON.Vector3(0.005, 0.005, 0.005);
 
       this.$canvas.style.width = "100%";
-      // this.camera.detachControl(this.$canvas);
+      this.camera.detachControl(this.$canvas);
     });
   }
 
