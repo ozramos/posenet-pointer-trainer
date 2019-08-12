@@ -1,12 +1,10 @@
 <template lang="pug">
-v-flex(xs12 lg4)
-  v-container(grid-list-xl)
-    v-card
-      v-card-title Use Model
-      v-card-actions
-        v-btn.primary(v-if='!posenet' @click='startPosenet' :loading='isBusy')
-          | Start PoseNet
-          v-icon chevron_right      
+v-card
+  v-card-title Use Model
+  v-card-actions
+    v-btn.primary(v-if='!posenet' @click='startPosenet' :loading='isBusy')
+      | Start PoseNet
+      v-icon chevron_right      
 </template>
 
 <script>

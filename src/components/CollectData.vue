@@ -1,41 +1,39 @@
 <template lang="pug">
-v-flex(xs12 lg4)
-  v-container(grid-list-xl)
-    v-layout(row wrap)
-      v-flex(:class='gridClasses')
-        v-card
-          v-card-title Step 1. Collect Synthetic Data
-          v-card-text
-            v-text-field(label='Number of Samples' v-model='numSamples' filled)
-          v-card-actions
-            v-btn(:to="{name: 'Home'}")
-              v-icon chevron_left
-              | About
-            v-spacer
-            v-btn.primary(v-if='!training.features.length' @click='collectData' :loading='isBusy')
-              | Collect Data
-              v-icon.ml-1 assignment
-            v-btn.primary(v-else :to='{name: "Training"}')
-              | Training
-              v-icon.ml-1 chevron_right
+v-layout(row wrap)
+  v-flex(:class='gridClasses')
+    v-card
+      v-card-title Step 1. Collect Synthetic Data
+      v-card-text
+        v-text-field(label='Number of Samples' v-model='numSamples' filled)
+      v-card-actions
+        v-btn(:to="{name: 'Home'}")
+          v-icon chevron_left
+          | About
+        v-spacer
+        v-btn.primary(v-if='!training.features.length' @click='collectData' :loading='isBusy')
+          | Collect Data
+          v-icon.ml-1 assignment
+        v-btn.primary(v-else :to='{name: "Training"}')
+          | Training
+          v-icon.ml-1 chevron_right
 
-      v-flex(v-if='training.features.length' :class='gridClasses')
-        v-card.mt-3(color='green lighten-3')
-          v-card-title (optional) Save Data
-          v-card-text
-            p You can persist the collected data either locally or as a file. Note that this is just the data, the model will be created in the following steps.
-          v-card-actions
-            v-btn.primary(@click='downloadJSON')
-              v-icon.mr-2 save_alt
-              | Download
-            v-spacer
-            v-btn.primary(@click='saveTrainingToLocalStorage')
-              v-icon.mr-2 save
-              | localStorage
+  v-flex(v-if='training.features.length' :class='gridClasses')
+    v-card.mt-3(color='green lighten-3')
+      v-card-title (optional) Save Data
+      v-card-text
+        p You can persist the collected data either locally or as a file. Note that this is just the data, the model will be created in the following steps.
+      v-card-actions
+        v-btn.primary(@click='downloadJSON')
+          v-icon.mr-2 save_alt
+          | Download
+        v-spacer
+        v-btn.primary(@click='saveTrainingToLocalStorage')
+          v-icon.mr-2 save
+          | localStorage
 
-        //- Snackbars
-        v-snackbar(v-model='snackbar.downloaded') Download complete
-        v-snackbar(v-model='snackbar.savedJSON') Saving complete
+    //- Snackbars
+    v-snackbar(v-model='snackbar.downloaded') Download complete
+    v-snackbar(v-model='snackbar.savedJSON') Saving complete
 </template>
 
 <script>

@@ -17,8 +17,10 @@
     v-content
       v-container(grid-list-xl)
         v-layout(row wrap)
-          router-view
           Scene
+          v-flex(xs12 sm6 lg8)
+            v-container(grid-list-xl)
+              router-view
 </template>
 
 <script>

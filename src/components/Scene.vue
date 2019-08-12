@@ -1,28 +1,25 @@
 <template lang="pug">
-  v-flex(xs12 lg8)
+  v-flex(xs12 sm6 lg4)
     v-container(grid-list-xl)
-      v-layout(row wrap)
-        v-flex(xs12 sm6)
-          v-card
-            v-card-title Synthetic Scene
-            v-card-text
-              #scene-wrap
-                canvas#scene(ref='scene' width=640 height=480)
-                canvas#overlay(ref='overlay' width=640 height=480)
+      v-card
+        v-card-title Synthetic Scene
+        v-card-text
+          #scene-wrap
+            canvas#scene(ref='scene' width=640 height=480)
+            canvas#overlay(ref='overlay' width=640 height=480)
 
-        v-flex(xs12 sm6)
-          v-card
-            v-card-title Adjustments
-            v-card-text
-              v-slider(v-model='synthetic.yaw' label='Yaw' :max='360')
-                template(v-slot:append)
-                  v-text-field(v-model='synthetic.yaw' type='number' style='width: 60px')
-              v-slider(v-model='synthetic.pitch' label='Pitch' :max='360')
-                template(v-slot:append)
-                  v-text-field(v-model='synthetic.pitch' type='number' style='width: 60px')
-              v-slider(v-model='synthetic.roll' label='Roll' :max='360')
-                template(v-slot:append)
-                  v-text-field(v-model='synthetic.roll' type='number' style='width: 60px')
+      v-card.mt-3
+        v-card-title Adjustments
+        v-card-text
+          v-slider(v-model='synthetic.yaw' label='Yaw' :max='360')
+            template(v-slot:append)
+              v-text-field(v-model='synthetic.yaw' type='number' style='width: 60px')
+          v-slider(v-model='synthetic.pitch' label='Pitch' :max='360')
+            template(v-slot:append)
+              v-text-field(v-model='synthetic.pitch' type='number' style='width: 60px')
+          v-slider(v-model='synthetic.roll' label='Roll' :max='360')
+            template(v-slot:append)
+              v-text-field(v-model='synthetic.roll' type='number' style='width: 60px')
 </template>
 
 <script>

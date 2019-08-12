@@ -1,48 +1,46 @@
 <template lang="pug">
-v-flex(xs12 lg4)
-  v-container(grid-list-xl)
-    v-layout(row wrap)
-      v-flex(xs12 sm6 lg12)
-        v-card
-          v-card-title Step 2. Training
-          v-card-text
-            v-text-field(label='Number of Epochs' v-model='numEpochs' filled)
-            v-text-field(label='Batch Size' v-model='batchSize' filled)
-            v-text-field(label='Learning Rate' v-model='learningRate' filled)
-          v-card-actions
-            v-btn(:to='{name: "CollectData"}')
-              v-icon chevron_left
-              | Collect Data
-            v-spacer
-            v-btn.primary(@click='startTraining' :loading='isBusy')
-              | Start Training
-              v-icon.ml-1 school
-      v-flex(xs12 sm6 lg12)
-        v-card(color='amber lighten-4')
-          v-card-title Visualizations
-          v-card-text
-            div(ref='visualizations')
+v-layout(row wrap)
+  v-flex(xs12 sm6 lg12)
+    v-card
+      v-card-title Step 2. Training
+      v-card-text
+        v-text-field(label='Number of Epochs' v-model='numEpochs' filled)
+        v-text-field(label='Batch Size' v-model='batchSize' filled)
+        v-text-field(label='Learning Rate' v-model='learningRate' filled)
+      v-card-actions
+        v-btn(:to='{name: "CollectData"}')
+          v-icon chevron_left
+          | Collect Data
+        v-spacer
+        v-btn.primary(@click='startTraining' :loading='isBusy')
+          | Start Training
+          v-icon.ml-1 school
+  v-flex(xs12 sm6 lg12)
+    v-card(color='amber lighten-4')
+      v-card-title Visualizations
+      v-card-text
+        div(ref='visualizations')
 
-        //- Modal
-        v-dialog(v-model='isModalVisible' max-width=600)
-          v-card
-            v-card-title 🎉 Model Ready
-            v-card-text
-              p Here is some feedback about your model:
-              p Final train-set loss: {{feedback.trainLoss}}
-              p Final validation-set loss: {{feedback.valLoss}}
-              p Final test-set loss: {{feedback.testLoss}}
-            v-card-actions
-              v-btn.primary(@click='downloadJSON')
-                v-icon.mr-2 save_alt
-                | Download
-              v-btn.primary(@click='saveToLocalStorage')
-                v-icon.mr-2 save
-                | localStorage
-              v-spacer
-              v-btn.primary(:to='{name: "UseModel"}')
-                | Use the model
-                v-icon.mr-2 chevron_right
+    //- Modal
+    v-dialog(v-model='isModalVisible' max-width=600)
+      v-card
+        v-card-title 🎉 Model Ready
+        v-card-text
+          p Here is some feedback about your model:
+          p Final train-set loss: {{feedback.trainLoss}}
+          p Final validation-set loss: {{feedback.valLoss}}
+          p Final test-set loss: {{feedback.testLoss}}
+        v-card-actions
+          v-btn.primary(@click='downloadJSON')
+            v-icon.mr-2 save_alt
+            | Download
+          v-btn.primary(@click='saveToLocalStorage')
+            v-icon.mr-2 save
+            | localStorage
+          v-spacer
+          v-btn.primary(:to='{name: "UseModel"}')
+            | Use the model
+            v-icon.mr-2 chevron_right
 </template>
 
 <script>
