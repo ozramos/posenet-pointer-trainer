@@ -1,10 +1,14 @@
 <template lang="pug">
 v-card
   v-card-title Use Model
+  v-card-text
+    h3
+      span.mr-2 Pitch
+      span {{predicted.pitch}}
   v-card-actions
     v-btn.primary(v-if='!posenet' @click='startPosenet' :loading='isBusy')
       | Start PoseNet
-      v-icon chevron_right      
+      v-icon chevron_right
 </template>
 
 <script>
@@ -19,7 +23,13 @@ export default {
   data: () => ({
     isBusy: false,
     inferenceStarted: false,
-    isReady: false
+    isReady: false,
+
+    predicted: {
+      pitch: 0,
+      yaw: 0,
+      roll: 0
+    }
   }),
 
   watch: {
@@ -102,8 +112,8 @@ export default {
               [1, 10]
             );
 
-            const prediction = this.model.predict(pose).dataSync();
-            console.log("Rotation X", prediction, prediction * 180);
+            const pitch = this.model.predict(pose).dataSync();
+            this.predicted.pitch = `${(pitch * 180) / Math.PI} || ${pitch}`;
           });
         });
       }

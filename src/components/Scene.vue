@@ -156,10 +156,12 @@ export default {
 
       this.Scene.use("getPose", async () => {
         if (this.isInferring) {
-          this.$store.commit("set", [
-            "pose",
-            await this.posenet.estimateSinglePose(this.$refs.scene)
-          ]);
+          const newPose = await this.posenet.estimateSinglePose(
+            this.$refs.scene
+          );
+          this.$store.commit("set", ["pose", newPose]);
+
+          this.Bus.$emit("newPose", newPose);
           this.drawKeypoints();
         }
       });
