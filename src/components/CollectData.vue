@@ -1,39 +1,37 @@
 <template lang="pug">
-v-layout(row wrap)
-  v-flex(:class='gridClasses')
-    v-card
-      v-card-title Step 1. Collect Synthetic Data
-      v-card-text
-        v-text-field(label='Number of Samples' v-model='numSamples' filled)
-      v-card-actions
-        v-btn(:to="{name: 'Home'}")
-          v-icon chevron_left
-          | About
-        v-spacer
-        v-btn.primary(v-if='!training.features.length' @click='collectData' :loading='isBusy')
-          | Collect Data
-          v-icon.ml-1 assignment
-        v-btn.primary(v-else :to='{name: "Training"}')
-          | Training
-          v-icon.ml-1 chevron_right
+div
+  v-card
+    v-card-title Step 1. Collect Synthetic Data
+    v-card-text
+      v-text-field(label='Number of Samples' v-model='numSamples' filled)
+    v-card-actions
+      v-btn(:to="{name: 'Home'}")
+        v-icon chevron_left
+        | About
+      v-spacer
+      v-btn.primary(v-if='!training.features.length' @click='collectData' :loading='isBusy')
+        | Collect Data
+        v-icon.ml-1 assignment
+      v-btn.primary(v-else :to='{name: "Training"}')
+        | Training
+        v-icon.ml-1 chevron_right
 
-  v-flex(v-if='training.features.length' :class='gridClasses')
-    v-card.mt-3(color='green lighten-3')
-      v-card-title (optional) Save Data
-      v-card-text
-        p You can persist the collected data either locally or as a file. Note that this is just the data, the model will be created in the following steps.
-      v-card-actions
-        v-btn.primary(@click='downloadJSON')
-          v-icon.mr-2 save_alt
-          | Download
-        v-spacer
-        v-btn.primary(@click='saveTrainingToLocalStorage')
-          v-icon.mr-2 save
-          | localStorage
+  v-card.mt-3(v-if='training.features.length' color='green lighten-3')
+    v-card-title (optional) Save Data
+    v-card-text
+      p You can persist the collected data either locally or as a file. Note that this is just the data, the model will be created in the following steps.
+    v-card-actions
+      v-btn.primary(@click='downloadJSON')
+        v-icon.mr-2 save_alt
+        | Download
+      v-spacer
+      v-btn.primary(@click='saveTrainingToLocalStorage')
+        v-icon.mr-2 save
+        | localStorage
 
-    //- Snackbars
-    v-snackbar(v-model='snackbar.downloaded') Download complete
-    v-snackbar(v-model='snackbar.savedJSON') Saving complete
+  //- Snackbars
+  v-snackbar(v-model='snackbar.downloaded') Download complete
+  v-snackbar(v-model='snackbar.savedJSON') Saving complete
 </template>
 
 <script>
@@ -43,18 +41,15 @@ export default {
   name: "CollectData",
 
   computed: {
-    ...mapState(["posenet", "Scene", "training", "pose"]),
-    gridClasses() {
-      let classes = "xs12";
-      if (this.training.features.length) {
-        classes += " sm6 lg12";
-      }
-      return classes;
+    ...mapState(["posenet", "Scene", "training", "isLoading", "pose"]),
+
+    isBusy() {
+      return this.isCollecting || this.isLoading.posenet;
     }
   },
 
   data: () => ({
-    isBusy: false,
+    isCollecting: false,
     numSamples: 500,
 
     snackbar: {
@@ -66,14 +61,22 @@ export default {
   methods: {
     /**
      * Loop numSamples, collecting data with each loop
+     * - Autostarts posenet if it's not already started
      */
     collectData() {
+      // Start
+      if (!this.posenet) {
+        this.Bus.$emit("startPosenet");
+      }
+
       let self = this;
       let curSampleIndex = 0;
       let training = { features: [], labels: [] };
-      this.isBusy = true;
+      this.isCollecting = true;
 
       this.Scene.use(function() {
+        if (!self.pose) return;
+
         if (curSampleIndex < self.numSamples) {
           // Labels = [Pitch, Yaw, Roll]
           if (self.hasValidKeypoints(self.pose)) {
@@ -110,7 +113,7 @@ export default {
 
           // Enable save buttons
         } else {
-          self.isBusy = false;
+          self.isCollecting = false;
           self.$store.commit("set", ["training", training]);
         }
       });
