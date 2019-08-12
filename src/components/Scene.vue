@@ -1,6 +1,6 @@
 <template lang="pug">
-v-flex(xs12 sm6 lg4)
-  v-container(grid-list-xl)
+v-layout(row wrap)
+  v-flex(xs12 md6 lg4)
     v-card
       v-card-title Synthetic Scene
       v-card-text
@@ -8,8 +8,9 @@ v-flex(xs12 sm6 lg4)
           canvas#scene(ref='scene' width=640 height=480)
           canvas#overlay(ref='overlay' width=640 height=480)
 
+  v-flex(xs12 md6 lg4)
     v-card.mt-3
-      v-card-title Adjustments
+      v-card-title Rotation
       v-card-text
         v-slider(v-model='synthetic.pitch' label='Pitch' :min='-35' :max='35')
           template(v-slot:append)
@@ -20,6 +21,20 @@ v-flex(xs12 sm6 lg4)
         v-slider(v-model='synthetic.roll' label='Roll' :min='-35' :max='35')
           template(v-slot:append)
             v-text-field(v-model='synthetic.roll' type='number' style='width: 60px')
+
+  v-flex(xs12 md6 lg4)
+    v-card.mt-3
+      v-card-title Position
+      v-card-text
+        v-slider(v-model='synthetic.x' label='x' :min='-5' :max='5')
+          template(v-slot:append)
+            v-text-field(v-model='synthetic.x' type='number' style='width: 60px')
+        v-slider(v-model='synthetic.y' label='y' :min='-3' :max='3')
+          template(v-slot:append)
+            v-text-field(v-model='synthetic.y' type='number' style='width: 60px')
+        v-slider(v-model='synthetic.z' label='z' :min='-11' :max='-1')
+          template(v-slot:append)
+            v-text-field(v-model='synthetic.z' type='number' style='width: 60px')
   v-snackbar(v-model='snackbar.isVisible') {{snackbar.message}}
 </template>
 
@@ -42,6 +57,15 @@ export default {
     },
     "synthetic.roll"(val) {
       this.Scene.head.rotation.z = (-val * Math.PI) / 180;
+    },
+    "synthetic.x"(val) {
+      this.Scene.head.position.x = -val;
+    },
+    "synthetic.y"(val) {
+      this.Scene.head.position.y = val;
+    },
+    "synthetic.z"(val) {
+      this.Scene.head.position.z = val;
     },
 
     /**
@@ -73,7 +97,10 @@ export default {
     synthetic: {
       yaw: 0,
       pitch: 0,
-      roll: 0
+      roll: 0,
+      x: 0,
+      y: 0,
+      z: -1
     }
   }),
 
