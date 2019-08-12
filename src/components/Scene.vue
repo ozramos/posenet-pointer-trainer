@@ -1,5 +1,5 @@
 <template lang="pug">
-v-layout(row wrap)
+v-layout.p0(row wrap)
   v-flex(xs12 md6 lg4)
     v-card
       v-card-title Synthetic Scene
@@ -9,32 +9,38 @@ v-layout(row wrap)
           canvas#overlay(ref='overlay' width=640 height=480)
 
   v-flex(xs12 md6 lg4)
-    v-card.mt-3
+    v-card
       v-card-title Rotation
       v-card-text
-        v-slider(v-model='synthetic.pitch' label='Pitch' :min='-35' :max='35')
+        v-slider(step=0 v-model='synthetic.pitch' label='Pitch' :min='-35' :max='35')
           template(v-slot:append)
             v-text-field(v-model='synthetic.pitch' type='number' style='width: 60px')
-        v-slider(v-model='synthetic.yaw' label='Yaw' :min='-35' :max='35')
+        v-slider(step=0 v-model='synthetic.yaw' label='Yaw' :min='-35' :max='35')
           template(v-slot:append)
             v-text-field(v-model='synthetic.yaw' type='number' style='width: 60px')
-        v-slider(v-model='synthetic.roll' label='Roll' :min='-35' :max='35')
+        v-slider(step=0 v-model='synthetic.roll' label='Roll' :min='-35' :max='35')
           template(v-slot:append)
             v-text-field(v-model='synthetic.roll' type='number' style='width: 60px')
+      v-card-actions
+        v-spacer
+        v-btn.primary(@click='resetRotations') Reset
 
   v-flex(xs12 md6 lg4)
-    v-card.mt-3
+    v-card
       v-card-title Position
       v-card-text
-        v-slider(v-model='synthetic.x' label='x' :min='-5' :max='5')
+        v-slider(step=0 v-model='synthetic.x' label='x' :min='-5' :max='5')
           template(v-slot:append)
             v-text-field(v-model='synthetic.x' type='number' style='width: 60px')
-        v-slider(v-model='synthetic.y' label='y' :min='-3' :max='3')
+        v-slider(step=0 v-model='synthetic.y' label='y' :min='-3' :max='3')
           template(v-slot:append)
             v-text-field(v-model='synthetic.y' type='number' style='width: 60px')
-        v-slider(v-model='synthetic.z' label='z' :min='-11' :max='-1')
+        v-slider(step=0 v-model='synthetic.z' label='z' :min='-11' :max='-1')
           template(v-slot:append)
             v-text-field(v-model='synthetic.z' type='number' style='width: 60px')
+      v-card-actions
+        v-spacer
+        v-btn.primary(@click='resetPositions') Reset
   v-snackbar(v-model='snackbar.isVisible') {{snackbar.message}}
 </template>
 
@@ -184,6 +190,27 @@ export default {
           this.ctx.fill();
         }
       }
+    },
+
+    resetRotations() {
+      this.synthetic.pitch = Math.random();
+      this.synthetic.yaw = Math.random();
+      this.synthetic.roll = Math.random();
+      this.$nextTick(() => {
+        this.synthetic.pitch = 0;
+        this.synthetic.yaw = 0;
+        this.synthetic.roll = 0;
+      });
+    },
+    resetPositions() {
+      this.synthetic.x = Math.random();
+      this.synthetic.y = Math.random();
+      this.synthetic.z = Math.random();
+      this.$nextTick(() => {
+        this.synthetic.x = 0;
+        this.synthetic.y = 0;
+        this.synthetic.z = -1;
+      });
     }
   }
 };
