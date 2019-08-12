@@ -70,14 +70,11 @@ export default {
      * - Autostarts posenet if it's not already started
      */
     collectData() {
-      // Start
-      if (!this.posenet) {
-        this.Bus.$emit("startPosenet");
-      }
-
       let self = this;
       let curSampleIndex = 0;
       let training = { features: [], labels: [] };
+
+      this.Bus.$emit("startPosenet");
       this.isCollecting = true;
 
       this.Scene.use(function() {

@@ -2,9 +2,10 @@
   v-app
     v-app-bar(app clipped-right color='indigo' dark)
       v-app-bar-nav-icon(@click='sidebar.main = !sidebar.main')
-      v-toolbar-title PoseNet Head Pose
+      v-toolbar-title PoseNet Pointer
       v-spacer
-      v-btn.amber.darken-3(v-if='!posenet' @click='startPosenet' :loading='isLoading.posenet') Start PoseNet
+      v-btn.amber.darken-3(v-if='!posenet || !isInferring' @click='startPosenet' :loading='isLoading.posenet') Start PoseNet
+      v-btn.error(v-else @click='stopPosenet') Stop PoseNet
 
     v-navigation-drawer(app v-model='sidebar.main')
       v-list(dense)
@@ -34,7 +35,7 @@ export default {
     Scene
   },
 
-  computed: mapState(["isLoading", "posenet"]),
+  computed: mapState(["isLoading", "posenet", "isInferring"]),
 
   data: () => ({
     sidebar: { main: true },
@@ -54,6 +55,10 @@ export default {
   methods: {
     startPosenet() {
       this.Bus.$emit("startPosenet");
+    },
+
+    stopPosenet() {
+      this.$store.commit("set", ["isInferring", false]);
     }
   }
 };

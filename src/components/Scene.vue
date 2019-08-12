@@ -31,7 +31,7 @@ import { mapState } from "vuex";
 export default {
   name: "Scene",
 
-  computed: mapState(["posenet", "Scene", "pose", "isLoading"]),
+  computed: mapState(["posenet", "Scene", "pose", "isLoading", "isInferring"]),
 
   watch: {
     "synthetic.yaw"(val) {
@@ -42,6 +42,21 @@ export default {
     },
     "synthetic.roll"(val) {
       this.Scene.head.rotation.z = (-val * Math.PI) / 180;
+    },
+
+    /**
+     * Always clear the last frame onchange
+     */
+    isInferring() {
+      setTimeout(() => {
+        this.ctx.clearRect(
+          0,
+          0,
+          this.$refs.overlay.width,
+          this.$refs.overlay.height
+        );
+        // @todo this is smelly
+      }, 100);
     }
   },
 
@@ -67,10 +82,18 @@ export default {
     this.$store.commit("set", ["Scene", new sceneSetup(this.$refs.scene)]);
 
     // Events
-    this.Bus.$on("startPosenet", this.startPosenet);
+    this.Bus.$on("startPosenet", this.maybeStartPosenet);
   },
 
   methods: {
+    maybeStartPosenet() {
+      if (this.posenet) {
+        this.$store.commit("set", ["isInferring", true]);
+      } else {
+        this.startPosenet();
+      }
+    },
+
     /**
      * Starts posenet and draws keypoints on every frame
      */
@@ -89,6 +112,7 @@ export default {
         this.Bus.$emit("posenetLoadError");
       }
       this.$store.commit("set", ["isLoading.posenet", false]);
+      this.$store.commit("set", ["isInferring", true]);
       if (hasError) return;
       this.Bus.$emit("PoseNetStarted");
 
@@ -98,11 +122,13 @@ export default {
       this.$store.commit("set", ["canvas", dimensions]);
 
       this.Scene.use(async () => {
-        this.$store.commit("set", [
-          "pose",
-          await this.posenet.estimateSinglePose(this.$refs.scene)
-        ]);
-        this.drawKeypoints();
+        if (this.isInferring) {
+          this.$store.commit("set", [
+            "pose",
+            await this.posenet.estimateSinglePose(this.$refs.scene)
+          ]);
+          this.drawKeypoints();
+        }
       });
     },
 

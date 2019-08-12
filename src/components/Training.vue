@@ -8,11 +8,11 @@ v-layout(row wrap)
         v-text-field(label='Batch Size' v-model='batchSize' filled)
         v-text-field(label='Learning Rate' v-model='learningRate' filled)
       v-card-actions
-        v-btn(:to='{name: "CollectData"}')
+        v-btn(:to='{name: "CollectData"}' :class='{primary: !this.training.labels.length}')
           v-icon chevron_left
           | Collect Data
         v-spacer
-        v-btn.primary(@click='startTraining' :loading='isBusy')
+        v-btn.primary(v-if='this.training.labels.length' @click='startTraining' :loading='isBusy')
           | Start Training
           v-icon.ml-1 school
   v-flex(xs12 sm6 lg12)

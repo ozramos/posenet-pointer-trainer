@@ -10,6 +10,9 @@ export default new Vuex.Store({
       posenet: false
     },
 
+    // Whether we should be inferring on every loop
+    isInferring: false,
+
     // The posenet object
     posenet: null,
 
@@ -28,6 +31,7 @@ export default new Vuex.Store({
       labels: []
     },
 
+    // Inner dimensions of the Scene canvas
     canvas: {
       width: 0,
       height: 0
