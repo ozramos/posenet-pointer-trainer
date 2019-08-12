@@ -107,12 +107,12 @@ export default {
           }
 
           this.head.rotation.x = Math.asin(Math.random() - 0.5);
-          this.head.rotation.y = Math.PI + Math.asin(Math.random() - 0.5);
-          this.head.rotation.z = Math.asin((Math.random() - 0.5) / 2);
+          this.head.rotation.y = Math.asin(Math.random() - 0.5);
+          this.head.rotation.z = Math.asin(Math.random() - 0.5);
 
-          this.head.position.x = Math.random() * 2000 - 1000;
-          this.head.position.y = Math.random() * 2000 - 1000;
-          this.head.position.z = Math.random() * -2000 - 1000;
+          this.head.position.x = Math.random() * -10 + 5;
+          this.head.position.y = Math.random() * -6 + 3;
+          this.head.position.z = Math.random() * -10 + 1;
 
           // Enable save buttons
         } else {

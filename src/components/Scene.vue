@@ -71,7 +71,7 @@ export default {
 
     // Synthetic data
     synthetic: {
-      yaw: 180,
+      yaw: 0,
       pitch: 0,
       roll: 0
     }

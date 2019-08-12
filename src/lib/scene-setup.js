@@ -24,22 +24,28 @@ export default class {
   createScene() {
     this.camera = new BABYLON.ArcRotateCamera(
       "Camera",
+      Math.PI / -2,
       Math.PI / 2,
-      Math.PI / 2,
-      2,
+      1,
       new BABYLON.Vector3(0, 0, 5),
       this.scene
     );
+    this.camera.attachControl(this.$canvas, true);
 
     BABYLON.SceneLoader.Append("./3d/", "scene.gltf", this.scene, scene => {
-      this.head = scene.meshes[0];
-      this.head.rotationQuaternion = null;
-      this.head.rotation.y = Math.PI;
-      scene.createDefaultCameraOrLight(true, true, false);
+      new BABYLON.HemisphericLight(
+        "light",
+        new BABYLON.Vector3(0, 1, 0),
+        scene
+      );
       scene.activeCamera.alpha += Math.PI;
 
+      this.head = scene.meshes[0];
+      this.head.rotationQuaternion = null;
+      this.head.scaling = new BABYLON.Vector3(0.005, 0.005, 0.005);
+
       this.$canvas.style.width = "100%";
-      this.camera.detachControl(this.$canvas);
+      // this.camera.detachControl(this.$canvas);
     });
   }
 
