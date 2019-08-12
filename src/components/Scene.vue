@@ -1,25 +1,26 @@
 <template lang="pug">
-  v-flex(xs12 sm6 lg4)
-    v-container(grid-list-xl)
-      v-card
-        v-card-title Synthetic Scene
-        v-card-text
-          #scene-wrap
-            canvas#scene(ref='scene' width=640 height=480)
-            canvas#overlay(ref='overlay' width=640 height=480)
+v-flex(xs12 sm6 lg4)
+  v-container(grid-list-xl)
+    v-card
+      v-card-title Synthetic Scene
+      v-card-text
+        #scene-wrap
+          canvas#scene(ref='scene' width=640 height=480)
+          canvas#overlay(ref='overlay' width=640 height=480)
 
-      v-card.mt-3
-        v-card-title Adjustments
-        v-card-text
-          v-slider(v-model='synthetic.yaw' label='Yaw' :max='360')
-            template(v-slot:append)
-              v-text-field(v-model='synthetic.yaw' type='number' style='width: 60px')
-          v-slider(v-model='synthetic.pitch' label='Pitch' :max='360')
-            template(v-slot:append)
-              v-text-field(v-model='synthetic.pitch' type='number' style='width: 60px')
-          v-slider(v-model='synthetic.roll' label='Roll' :max='360')
-            template(v-slot:append)
-              v-text-field(v-model='synthetic.roll' type='number' style='width: 60px')
+    v-card.mt-3
+      v-card-title Adjustments
+      v-card-text
+        v-slider(v-model='synthetic.yaw' label='Yaw' :max='360')
+          template(v-slot:append)
+            v-text-field(v-model='synthetic.yaw' type='number' style='width: 60px')
+        v-slider(v-model='synthetic.pitch' label='Pitch' :max='360')
+          template(v-slot:append)
+            v-text-field(v-model='synthetic.pitch' type='number' style='width: 60px')
+        v-slider(v-model='synthetic.roll' label='Roll' :max='360')
+          template(v-slot:append)
+            v-text-field(v-model='synthetic.roll' type='number' style='width: 60px')
+  v-snackbar(v-model='snackbar.isVisible') {{snackbar.message}}
 </template>
 
 <script>
@@ -48,6 +49,11 @@ export default {
     // The drawing context for posenet keypoints
     ctx: null,
 
+    snackbar: {
+      message: "",
+      isVisible: false
+    },
+
     // Synthetic data
     synthetic: {
       yaw: 180,
@@ -70,12 +76,20 @@ export default {
      */
     async startPosenet() {
       let dimensions = { width: 0, height: 0 };
+      let hasError = false;
 
-      // Load posenet
-      console.log("startingposenet");
+      // Load posenet and bail if no connection
       this.$store.commit("set", ["isLoading.posenet", true]);
-      this.$store.commit("set", ["posenet", await new Posenet.load()]);
+      try {
+        this.$store.commit("set", ["posenet", await new Posenet.load()]);
+      } catch (e) {
+        hasError = true;
+        this.snackbar.message = `😔 Error loading posenet, please try again => ${e}`;
+        this.snackbar.isVisible = true;
+        this.Bus.$emit("posenetLoadError");
+      }
       this.$store.commit("set", ["isLoading.posenet", false]);
+      if (hasError) return;
       this.Bus.$emit("PoseNetStarted");
 
       // Make sure overlay's canavas matches babylon's

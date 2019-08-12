@@ -58,6 +58,12 @@ export default {
     }
   }),
 
+  mounted() {
+    this.Bus.$on("posenetLoadError", () => {
+      this.isCollecting = false;
+    });
+  },
+
   methods: {
     /**
      * Loop numSamples, collecting data with each loop
