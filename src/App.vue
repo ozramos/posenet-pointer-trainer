@@ -2,7 +2,10 @@
   v-app
     v-app-bar(app clipped-right color='indigo' dark)
       v-app-bar-nav-icon(@click='sidebar.main = !sidebar.main')
-      v-toolbar-title PoseNet Pointer
+      v-toolbar-title
+        router-link(:to='{name: "Home"}' style="color: #fff; text-decoration: none")
+          span.mr-2 PoseNet Pointer
+          small(style='font-size: 12px') v{{pkg.version}}
       v-spacer
       v-btn.amber.darken-3(v-if='!posenet || !isInferring' @click='startPosenet' :loading='isLoading.posenet') Start PoseNet
       v-btn.error(v-else @click='stopPosenet') Stop PoseNet
@@ -27,6 +30,7 @@
 <script>
 import Scene from "./components/Scene";
 import { mapState } from "vuex";
+import pkg from "../package.json";
 
 export default {
   name: "App",
@@ -38,6 +42,7 @@ export default {
   computed: mapState(["isLoading", "posenet", "isInferring"]),
 
   data: () => ({
+    pkg,
     sidebar: { main: true },
     menu: [
       { label: "About", icon: "info", to: { name: "Home" } },

@@ -82,7 +82,7 @@ export default {
       if (!this.inferenceStarted) {
         this.inferenceStarted = true;
 
-        this.Scene.use(() => {
+        this.Scene.use("inferPose", () => {
           tf.tidy(() => {
             if (!this.pose) return;
 

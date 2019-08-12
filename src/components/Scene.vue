@@ -11,12 +11,12 @@ v-flex(xs12 sm6 lg4)
     v-card.mt-3
       v-card-title Adjustments
       v-card-text
-        v-slider(v-model='synthetic.yaw' label='Yaw' :max='360')
-          template(v-slot:append)
-            v-text-field(v-model='synthetic.yaw' type='number' style='width: 60px')
         v-slider(v-model='synthetic.pitch' label='Pitch' :max='360')
           template(v-slot:append)
             v-text-field(v-model='synthetic.pitch' type='number' style='width: 60px')
+        v-slider(v-model='synthetic.yaw' label='Yaw' :max='360')
+          template(v-slot:append)
+            v-text-field(v-model='synthetic.yaw' type='number' style='width: 60px')
         v-slider(v-model='synthetic.roll' label='Roll' :max='360')
           template(v-slot:append)
             v-text-field(v-model='synthetic.roll' type='number' style='width: 60px')
@@ -121,7 +121,7 @@ export default {
       dimensions.height = this.$refs.overlay.height = this.$refs.scene.height;
       this.$store.commit("set", ["canvas", dimensions]);
 
-      this.Scene.use(async () => {
+      this.Scene.use("getPose", async () => {
         if (this.isInferring) {
           this.$store.commit("set", [
             "pose",

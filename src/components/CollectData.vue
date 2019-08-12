@@ -77,7 +77,7 @@ export default {
       this.Bus.$emit("startPosenet");
       this.isCollecting = true;
 
-      this.Scene.use(function() {
+      this.Scene.use("collectData", function() {
         if (!self.pose) return;
 
         if (curSampleIndex < self.numSamples) {

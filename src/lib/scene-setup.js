@@ -7,7 +7,7 @@ export default class {
    */
   constructor($canvas) {
     this.$canvas = $canvas;
-    this.plugins = [];
+    this.plugins = {};
     this.engine = new BABYLON.Engine($canvas, true);
     this.scene = new BABYLON.Scene(this.engine);
     this.head = null;
@@ -50,8 +50,8 @@ export default class {
     this.engine.runRenderLoop(() => {
       this.scene.render();
 
-      this.plugins.forEach(plugin => {
-        plugin.call(this);
+      Object.keys(this.plugins).forEach(key => {
+        this.plugins[key].call(this);
       });
     });
   }
@@ -60,8 +60,8 @@ export default class {
    * Adds a plugin to be called on every scene render
    * @param {Function} callback The callback to call
    */
-  use(callback) {
-    this.plugins.push(callback);
+  use(name, callback) {
+    this.plugins[name] = callback;
   }
 
   /**
