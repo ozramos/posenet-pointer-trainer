@@ -154,6 +154,7 @@ export default {
       dimensions.height = this.$refs.overlay.height = this.$refs.scene.height;
       this.$store.commit("set", ["canvas", dimensions]);
 
+      // Use PoseNet
       this.Scene.use("getPose", async () => {
         if (this.isInferring) {
           const newPose = await this.posenet.estimateSinglePose(
@@ -161,7 +162,9 @@ export default {
           );
           this.$store.commit("set", ["pose", newPose]);
 
-          this.Bus.$emit("newPose", newPose);
+          this.$nextTick(() => {
+            this.Bus.$emit("newPose", newPose);
+          });
           this.drawKeypoints();
         }
       });

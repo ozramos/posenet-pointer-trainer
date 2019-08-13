@@ -82,19 +82,21 @@ export default {
       this.tensors = this.setupTensors(this.rawData);
 
       // Normalize mean and standard deviation of data.
-      let { dataMean, dataStd } = this.getMeanAndStandardDeviation(
-        this.tensors.rawTrainFeatures
-      );
-      this.tensors.trainFeatures = this.normalizeTensor(
-        this.tensors.rawTrainFeatures,
-        dataMean,
-        dataStd
-      );
-      this.tensors.testFeatures = this.normalizeTensor(
-        this.tensors.rawTestFeatures,
-        dataMean,
-        dataStd
-      );
+      this.tensors.testFeatures = this.tensors.rawTestFeatures;
+      this.tensors.trainFeatures = this.tensors.rawTrainFeatures;
+      // let { dataMean, dataStd } = this.getMeanAndStandardDeviation(
+      //   this.tensors.rawTrainFeatures
+      // );
+      // this.tensors.trainFeatures = this.normalizeTensor(
+      //   this.tensors.rawTrainFeatures,
+      //   dataMean,
+      //   dataStd
+      // );
+      // this.tensors.testFeatures = this.normalizeTensor(
+      //   this.tensors.rawTestFeatures,
+      //   dataMean,
+      //   dataStd
+      // );
 
       // Create the model
       this.$store.commit("set", [
@@ -191,7 +193,7 @@ export default {
       await model.fit(tensors.trainFeatures, tensors.trainPitch, {
         batchSize: +this.batchSize,
         epochs: +this.numEpochs,
-        validationSplit: 0.3,
+        validationSplit: 0.1,
         callbacks: {
           onEpochEnd: async (epoch, logs) => {
             console.log(`⏳ Epoch ${epoch + 1} of ${this.numEpochs} completed`);

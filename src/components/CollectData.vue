@@ -91,7 +91,7 @@ export default {
               this.Scene.head.rotation.z
             ]);
 
-            // Features [x1, y1...x5, y5]
+            // Normalized features [x1, y1...x5, y5]
             training.features.push([
               pose.keypoints[0].position.x / this.Scene.$canvas.width,
               pose.keypoints[0].position.y / this.Scene.$canvas.height,

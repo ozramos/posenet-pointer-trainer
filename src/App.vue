@@ -39,6 +39,14 @@ export default {
 
   computed: mapState(["isLoading", "posenet", "isInferring"]),
 
+  // Load collected data if present
+  mounted() {
+    const data = localStorage.getItem("training");
+    if (data) {
+      this.$store.commit("set", ["training", JSON.parse(data)]);
+    }
+  },
+
   data: () => ({
     pkg,
     sidebar: { main: true },
