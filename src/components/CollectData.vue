@@ -9,10 +9,10 @@ div
         v-icon chevron_left
         | About
       v-spacer
-      v-btn.primary(v-if='!training.features.length' @click='collectData' :loading='isBusy')
+      v-btn.primary(@click='collectData' :loading='isBusy')
         | Collect Data
         v-icon.ml-1 assignment
-      v-btn.primary(v-else :to='{name: "Training"}')
+      v-btn.primary(v-if='training.features.length' :to='{name: "Training"}')
         | Training
         v-icon.ml-1 chevron_right
 
@@ -67,6 +67,7 @@ export default {
   methods: {
     /**
      * Loop numSamples, collecting data with each loop
+     * - Clears existing data
      * - Autostarts posenet if it's not already started
      */
     collectData() {
@@ -74,6 +75,7 @@ export default {
       let curSampleIndex = 0;
       let training = { features: [], labels: [] };
 
+      localStorage.removeItem("training");
       this.Bus.$emit("startPosenet");
       this.isCollecting = true;
 
@@ -81,14 +83,12 @@ export default {
         if (!this.isCollecting) return;
 
         if (curSampleIndex < self.numSamples) {
-          // Labels = [Pitch, Yaw, Roll]
           if (self.hasValidKeypoints(pose)) {
             curSampleIndex++;
 
             training.labels.push([
-              this.Scene.head.rotation.x,
-              this.Scene.head.rotation.y,
-              this.Scene.head.rotation.z
+              // distance from screen
+              -this.Scene.head.position.z
             ]);
 
             // Normalized features [x1, y1...x5, y5]
@@ -115,12 +115,13 @@ export default {
 
           this.Scene.head.position.x = Math.random() * -10 + 5;
           this.Scene.head.position.y = Math.random() * -6 + 3;
-          this.Scene.head.position.z = Math.random() * -10 + 1;
+          this.Scene.head.position.z = Math.random() * -20;
 
           // Enable save buttons
         } else {
           self.isCollecting = false;
           self.$store.commit("set", ["training", training]);
+          console.log(training);
         }
       });
     },

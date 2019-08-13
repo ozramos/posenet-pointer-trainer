@@ -27,7 +27,7 @@ export default class {
       Math.PI / -2,
       Math.PI / 2,
       1,
-      new BABYLON.Vector3(0, 0, 5),
+      new BABYLON.Vector3(0, 0, 2),
       this.scene
     );
     this.camera.attachControl(this.$canvas, true);
@@ -43,6 +43,7 @@ export default class {
       this.head = scene.meshes[0];
       this.head.rotationQuaternion = null;
       this.head.scaling = new BABYLON.Vector3(0.005, 0.005, 0.005);
+      this.head.position.z = 0;
 
       this.$canvas.style.width = "100%";
       this.camera.detachControl(this.$canvas);

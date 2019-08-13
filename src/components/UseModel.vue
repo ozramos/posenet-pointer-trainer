@@ -3,8 +3,8 @@ v-card
   v-card-title Use Model
   v-card-text
     h3
-      span.mr-2 Pitch
-      span {{predicted.pitch}}
+      strong.mr-2 Z-Distance:
+      span {{predicted.z}}
   v-card-actions
     v-btn.primary(v-if='!posenet' @click='startPosenet' :loading='isBusy')
       | Start PoseNet
@@ -25,11 +25,7 @@ export default {
     inferenceStarted: false,
     isReady: false,
 
-    predicted: {
-      pitch: 0,
-      yaw: 0,
-      roll: 0
-    }
+    predicted: { z: 0 }
   }),
 
   watch: {
@@ -112,8 +108,8 @@ export default {
               [1, 10]
             );
 
-            const pitch = this.model.predict(pose).dataSync();
-            this.predicted.pitch = `${(pitch * 180) / Math.PI} || ${pitch}`;
+            const z = this.model.predict(pose).dataSync();
+            this.predicted.z = `${z}`;
           });
         });
       }

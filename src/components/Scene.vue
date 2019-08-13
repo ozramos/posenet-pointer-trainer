@@ -35,7 +35,7 @@ v-layout.p0(row wrap)
         v-slider(step=0 v-model='synthetic.y' label='y' :min='-3' :max='3')
           template(v-slot:append)
             v-text-field(v-model='synthetic.y' type='number' style='width: 60px')
-        v-slider(step=0 v-model='synthetic.z' label='z' :min='-11' :max='-1')
+        v-slider(step=0 v-model='synthetic.z' label='z' :min='0' :max='20')
           template(v-slot:append)
             v-text-field(v-model='synthetic.z' type='number' style='width: 60px')
       v-card-actions
@@ -71,7 +71,7 @@ export default {
       this.Scene.head.position.y = val;
     },
     "synthetic.z"(val) {
-      this.Scene.head.position.z = val;
+      this.Scene.head.position.z = -val;
     },
 
     /**
@@ -106,7 +106,7 @@ export default {
       roll: 0,
       x: 0,
       y: 0,
-      z: -1
+      z: 0
     }
   }),
 
@@ -188,7 +188,7 @@ export default {
           this.ctx.arc(
             this.pose.keypoints[i].position.x,
             this.pose.keypoints[i].position.y,
-            10,
+            8,
             0,
             2 * Math.PI
           );
