@@ -15,6 +15,8 @@ div
       v-btn.primary(v-if='training.features.length' :to='{name: "Training"}')
         | Training
         v-icon.ml-1 chevron_right
+    v-card-actions(v-if='isCollecting')
+      v-progress-linear(v-model='progress')
 
   v-card.mt-3(v-if='training.features.length' color='green lighten-3')
     v-card-title (optional) Save Data
@@ -36,7 +38,7 @@ div
 
 <script>
 import { mapState } from "vuex";
-import { getTrianglePerimeter } from "../lib/helpers";
+import { getTotalPerimeter } from "../lib/helpers";
 
 export default {
   name: "CollectData",
@@ -52,6 +54,7 @@ export default {
   data: () => ({
     isCollecting: false,
     numSamples: 500,
+    progress: 0,
 
     snackbar: {
       downloaded: false,
@@ -86,9 +89,10 @@ export default {
         if (curSampleIndex < self.numSamples) {
           if (self.hasValidKeypoints(pose)) {
             curSampleIndex++;
+            this.progress = (curSampleIndex / this.numSamples) * 100;
 
             // Normalized features [x1, y1...x5, y5]
-            training.features.push([getTrianglePerimeter(pose, [0, 1, 2])]);
+            training.features.push([getTotalPerimeter(pose)]);
             // Labels = distance from screen
             training.labels.push([-this.Scene.head.position.z]);
           }

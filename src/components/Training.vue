@@ -133,7 +133,7 @@ export default {
         loss: "meanSquaredError"
       });
 
-      await model.fit(tensors.trainFeatures, tensors.trainPitch, {
+      await model.fit(tensors.trainFeatures, tensors.trainZ, {
         batchSize: +this.batchSize,
         epochs: +this.numEpochs,
         validationSplit: 0.1,
@@ -150,7 +150,7 @@ export default {
       });
 
       console.log("🎉 Training complete! Now running tests...");
-      const result = model.evaluate(tensors.testFeatures, tensors.testPitch, {
+      const result = model.evaluate(tensors.testFeatures, tensors.testZ, {
         batchSize: this.batchSize
       });
       this.feedback.testLoss = result.dataSync()[0];
@@ -189,15 +189,11 @@ export default {
 
       // Setup Feature tensors
       tensors.rawTrainFeatures = tf.tensor2d(rawData.trainFeatures);
-      tensors.trainPitch = tf.tensor2d(rawData.trainTargets.map(i => [i[0]]));
-      tensors.trainYaw = tf.tensor2d(rawData.trainTargets.map(i => [i[1]]));
-      tensors.trainRoll = tf.tensor2d(rawData.trainTargets.map(i => [i[2]]));
+      tensors.trainZ = tf.tensor2d(rawData.trainTargets.map(i => [i[0]]));
 
       // Setup Test tensors
       tensors.rawTestFeatures = tf.tensor2d(rawData.testFeatures);
-      tensors.testPitch = tf.tensor2d(rawData.testTargets.map(i => [i[0]]));
-      tensors.testYaw = tf.tensor2d(rawData.testTargets.map(i => [i[1]]));
-      tensors.testRoll = tf.tensor2d(rawData.testTargets.map(i => [i[2]]));
+      tensors.testZ = tf.tensor2d(rawData.testTargets.map(i => [i[0]]));
 
       return tensors;
     },

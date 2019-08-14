@@ -13,7 +13,7 @@ v-card
 
 <script>
 import { mapState } from "vuex";
-import { getTrianglePerimeter } from "../lib/helpers";
+import { getTotalPerimeter } from "../lib/helpers";
 import * as tf from "@tensorflow/tfjs";
 
 export default {
@@ -94,11 +94,11 @@ export default {
             if (!this.pose) return;
 
             const perimeter = tf.tensor2d(
-              [getTrianglePerimeter(this.pose, [0, 1, 2])],
+              [getTotalPerimeter(this.pose, [0, 1, 2])],
               [1, 1]
             );
 
-            const z = this.model.predict(perimeter).dataSync();
+            const z = this.model.predict(perimeter).asScalar().dataSync();
             this.predicted.z = `${z}`;
           });
         });

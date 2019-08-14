@@ -24,3 +24,15 @@ export function getTrianglePerimeter(pose, keypoints) {
     Math.sqrt(Math.pow(c.x - a.x, 2) + Math.pow(c.y - a.y, 2))
   );
 }
+
+/**
+ * Gets the total perimeter from the 3 triangles
+ * @param {*} pose
+ */
+export function getTotalPerimeter(pose) {
+  return (
+    getTrianglePerimeter(pose, [0, 1, 2]) +
+    getTrianglePerimeter(pose, [1, 3, 0]) +
+    getTrianglePerimeter(pose, [0, 2, 4])
+  );
+}
