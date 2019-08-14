@@ -1,4 +1,12 @@
-const BABYLON = window.BABYLON;
+import {
+  Engine,
+  Scene,
+  ArcRotateCamera,
+  SceneLoader,
+  HemisphericLight,
+  Vector3
+} from "babylonjs";
+import "babylonjs-loaders";
 
 export default class {
   /**
@@ -8,8 +16,8 @@ export default class {
   constructor($canvas) {
     this.$canvas = $canvas;
     this.plugins = {};
-    this.engine = new BABYLON.Engine($canvas, true);
-    this.scene = new BABYLON.Scene(this.engine);
+    this.engine = new Engine($canvas, true);
+    this.scene = new Scene(this.engine);
     this.head = null;
     this.camera = null;
 
@@ -22,27 +30,23 @@ export default class {
    * Creates the scene
    */
   createScene() {
-    this.camera = new BABYLON.ArcRotateCamera(
+    this.camera = new ArcRotateCamera(
       "Camera",
       Math.PI / -2,
       Math.PI / 2,
       1,
-      new BABYLON.Vector3(0, 0, 2),
+      new Vector3(0, 0, 2),
       this.scene
     );
     this.camera.attachControl(this.$canvas, true);
 
-    BABYLON.SceneLoader.Append("./3d/", "scene.gltf", this.scene, scene => {
-      new BABYLON.HemisphericLight(
-        "light",
-        new BABYLON.Vector3(0, 1, 0),
-        scene
-      );
+    SceneLoader.Append("./3d/", "scene.gltf", this.scene, scene => {
+      new HemisphericLight("light", new Vector3(0, 1, 0), scene);
       scene.activeCamera.alpha += Math.PI;
 
       this.head = scene.meshes[0];
       this.head.rotationQuaternion = null;
-      this.head.scaling = new BABYLON.Vector3(0.005, 0.005, 0.005);
+      this.head.scaling = new Vector3(0.005, 0.005, 0.005);
       this.head.position.z = 0;
 
       this.$canvas.style.width = "100%";
