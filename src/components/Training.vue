@@ -36,7 +36,7 @@ div
           v-icon.mr-2 save
           | localStorage
         v-spacer
-        v-btn.primary(:to='{name: "UseModel"}')
+        v-btn.primary(:to='{name: "CheckModel"}')
           | Use the model
           v-icon.mr-2 chevron_right
 </template>

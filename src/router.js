@@ -3,7 +3,7 @@ import Router from "vue-router";
 import Home from "./components/Home";
 import CollectData from "./components/CollectData";
 import Training from "./components/Training";
-import UseModel from "./components/UseModel";
+import CheckModel from "./components/CheckModel";
 
 Vue.use(Router);
 
@@ -27,8 +27,8 @@ export default new Router({
     },
     {
       path: "/use-model",
-      name: "UseModel",
-      component: UseModel
+      name: "CheckModel",
+      component: CheckModel
     }
   ]
 });

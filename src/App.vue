@@ -12,11 +12,16 @@
 
     v-navigation-drawer(app v-model='sidebar.main')
       v-list(dense)
-        v-list-item(v-for='(item, key) in menu' :key='key' :to='item.to')
-          v-list-item-action
-            v-icon {{item.icon}}
-          v-list-item-content
-            v-list-item-title {{item.label}}
+        v-list-group(value='true')
+          template(v-slot:activator)
+            v-list-item-action
+              v-icon memory
+            v-list-item-title Build a Model
+          v-list-item(v-for='(item, key) in menu' :key='key' :to='item.to' :exact='item.exact')
+            v-list-item-action
+              v-icon {{item.icon}}
+            v-list-item-content
+              v-list-item-title {{item.label}}
 
     v-content
       v-container(grid-list-xl)
@@ -51,14 +56,18 @@ export default {
     pkg,
     sidebar: { main: true },
     menu: [
-      { label: "About", icon: "info", to: { name: "Home" } },
+      { label: "About", icon: "info", to: { name: "Home" }, exact: true },
       {
         label: "Step 1. Collect Data",
         icon: "memory",
         to: { name: "CollectData" }
       },
       { label: "Step 2. Train", icon: "school", to: { name: "Training" } },
-      { label: "Step 3. Use Model", icon: "android", to: { name: "UseModel" } }
+      {
+        label: "Step 3. Check Model",
+        icon: "search",
+        to: { name: "CheckModel" }
+      }
     ],
     Scene: Scene
   }),

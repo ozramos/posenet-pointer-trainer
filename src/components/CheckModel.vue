@@ -13,11 +13,11 @@ v-card
 
 <script>
 import { mapState } from "vuex";
-import { getTotalPerimeter } from "../lib/helpers";
+import { getTotalPerimeter } from "../assets/js/helpers";
 import * as tf from "@tensorflow/tfjs";
 
 export default {
-  name: "UseModel",
+  name: "CheckModel",
 
   computed: mapState(["model", "posenet", "Scene", "pose", "canvas"]),
 
@@ -98,7 +98,10 @@ export default {
               [1, 1]
             );
 
-            const z = this.model.predict(perimeter).asScalar().dataSync();
+            const z = this.model
+              .predict(perimeter)
+              .asScalar()
+              .dataSync();
             this.predicted.z = `${z}`;
           });
         });

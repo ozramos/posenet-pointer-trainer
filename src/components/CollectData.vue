@@ -38,7 +38,7 @@ div
 
 <script>
 import { mapState } from "vuex";
-import { getTotalPerimeter } from "../lib/helpers";
+import { getTotalPerimeter } from "../assets/js/helpers";
 
 export default {
   name: "CollectData",

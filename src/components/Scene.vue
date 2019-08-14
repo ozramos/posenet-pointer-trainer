@@ -45,7 +45,7 @@ v-layout.p0(row wrap)
 </template>
 
 <script>
-import sceneSetup from "../lib/scene-setup.js";
+import sceneSetup from "../assets/js/scene-setup.js";
 import * as Posenet from "@tensorflow-models/posenet";
 import { mapState } from "vuex";
 
