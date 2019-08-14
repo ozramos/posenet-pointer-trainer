@@ -36,6 +36,7 @@ div
 
 <script>
 import { mapState } from "vuex";
+import { getTrianglePerimeter } from "../lib/helpers";
 
 export default {
   name: "CollectData",
@@ -86,24 +87,10 @@ export default {
           if (self.hasValidKeypoints(pose)) {
             curSampleIndex++;
 
-            training.labels.push([
-              // distance from screen
-              -this.Scene.head.position.z
-            ]);
-
             // Normalized features [x1, y1...x5, y5]
-            training.features.push([
-              pose.keypoints[0].position.x / this.Scene.$canvas.width,
-              pose.keypoints[0].position.y / this.Scene.$canvas.height,
-              pose.keypoints[1].position.x / this.Scene.$canvas.width,
-              pose.keypoints[1].position.y / this.Scene.$canvas.height,
-              pose.keypoints[2].position.x / this.Scene.$canvas.width,
-              pose.keypoints[2].position.y / this.Scene.$canvas.height,
-              pose.keypoints[3].position.x / this.Scene.$canvas.width,
-              pose.keypoints[3].position.y / this.Scene.$canvas.height,
-              pose.keypoints[4].position.x / this.Scene.$canvas.width,
-              pose.keypoints[4].position.y / this.Scene.$canvas.height
-            ]);
+            training.features.push([getTrianglePerimeter(pose, [0, 1, 2])]);
+            // Labels = distance from screen
+            training.labels.push([-this.Scene.head.position.z]);
           }
 
           this.Scene.head.rotation.x =
@@ -121,7 +108,6 @@ export default {
         } else {
           self.isCollecting = false;
           self.$store.commit("set", ["training", training]);
-          console.log(training);
         }
       });
     },

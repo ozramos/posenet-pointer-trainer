@@ -62,7 +62,7 @@ export default {
       testSetLoss: 0
     },
 
-    numEpochs: 100,
+    numEpochs: 50,
     learningRate: 0.001,
     batchSize: 32,
 
@@ -82,21 +82,21 @@ export default {
       this.tensors = this.setupTensors(this.rawData);
 
       // Normalize mean and standard deviation of data.
-      this.tensors.testFeatures = this.tensors.rawTestFeatures;
-      this.tensors.trainFeatures = this.tensors.rawTrainFeatures;
-      // let { dataMean, dataStd } = this.getMeanAndStandardDeviation(
-      //   this.tensors.rawTrainFeatures
-      // );
-      // this.tensors.trainFeatures = this.normalizeTensor(
-      //   this.tensors.rawTrainFeatures,
-      //   dataMean,
-      //   dataStd
-      // );
-      // this.tensors.testFeatures = this.normalizeTensor(
-      //   this.tensors.rawTestFeatures,
-      //   dataMean,
-      //   dataStd
-      // );
+      // this.tensors.testFeatures = this.tensors.rawTestFeatures;
+      // this.tensors.trainFeatures = this.tensors.rawTrainFeatures;
+      let { dataMean, dataStd } = this.getMeanAndStandardDeviation(
+        this.tensors.rawTrainFeatures
+      );
+      this.tensors.trainFeatures = this.normalizeTensor(
+        this.tensors.rawTrainFeatures,
+        dataMean,
+        dataStd
+      );
+      this.tensors.testFeatures = this.normalizeTensor(
+        this.tensors.rawTestFeatures,
+        dataMean,
+        dataStd
+      );
 
       // Create the model
       this.$store.commit("set", [
@@ -104,6 +104,65 @@ export default {
         this.createLinearRegressionModel(this.rawData)
       ]);
       this.compileAndTrain(this.model, this.tensors);
+    },
+
+    /**
+     * Creates a simple linear regresion model
+     * @return model
+     */
+    createLinearRegressionModel(rawData) {
+      const model = tf.sequential();
+      model.add(
+        tf.layers.dense({
+          inputShape: [rawData.trainFeatures[0].length],
+          units: rawData.trainFeatures[0].length
+        })
+      );
+      model.add(tf.layers.dense({ units: 1 }));
+      model.summary();
+
+      return model;
+    },
+
+    /**
+     * Trains the model
+     */
+    async compileAndTrain(model, tensors) {
+      model.compile({
+        optimizer: tf.train.sgd(+this.learningRate),
+        loss: "meanSquaredError"
+      });
+
+      await model.fit(tensors.trainFeatures, tensors.trainPitch, {
+        batchSize: +this.batchSize,
+        epochs: +this.numEpochs,
+        validationSplit: 0.1,
+        callbacks: {
+          onEpochEnd: async (epoch, logs) => {
+            console.log(`⏳ Epoch ${epoch + 1} of ${this.numEpochs} completed`);
+            this.trainingLogs.push(logs);
+            tfvis.show.history(this.$refs.visualizations, this.trainingLogs, [
+              "loss",
+              "val_loss"
+            ]);
+          }
+        }
+      });
+
+      console.log("🎉 Training complete! Now running tests...");
+      const result = model.evaluate(tensors.testFeatures, tensors.testPitch, {
+        batchSize: this.batchSize
+      });
+      this.feedback.testLoss = result.dataSync()[0];
+      this.feedback.trainLoss = this.trainingLogs[
+        this.trainingLogs.length - 1
+      ].loss;
+      this.feedback.valLoss = this.trainingLogs[
+        this.trainingLogs.length - 1
+      ].val_loss;
+
+      this.isBusy = false;
+      this.isModalVisible = true;
     },
 
     /**
@@ -161,65 +220,6 @@ export default {
      */
     normalizeTensor(data, dataMean, dataStd) {
       return data.sub(dataMean).div(dataStd);
-    },
-
-    /**
-     * Creates a simple linear regresion model
-     * @return model
-     */
-    createLinearRegressionModel(rawData) {
-      const model = tf.sequential();
-      // Simple linear regression
-      model.add(
-        tf.layers.dense({
-          inputShape: [rawData.trainFeatures[0].length],
-          units: 1
-        })
-      );
-      model.summary();
-
-      return model;
-    },
-
-    /**
-     * Trains the model
-     */
-    async compileAndTrain(model, tensors) {
-      model.compile({
-        optimizer: tf.train.sgd(+this.learningRate),
-        loss: "meanSquaredError"
-      });
-
-      await model.fit(tensors.trainFeatures, tensors.trainPitch, {
-        batchSize: +this.batchSize,
-        epochs: +this.numEpochs,
-        validationSplit: 0.1,
-        callbacks: {
-          onEpochEnd: async (epoch, logs) => {
-            console.log(`⏳ Epoch ${epoch + 1} of ${this.numEpochs} completed`);
-            this.trainingLogs.push(logs);
-            tfvis.show.history(this.$refs.visualizations, this.trainingLogs, [
-              "loss",
-              "val_loss"
-            ]);
-          }
-        }
-      });
-
-      console.log("🎉 Training complete! Now running tests...");
-      const result = model.evaluate(tensors.testFeatures, tensors.testPitch, {
-        batchSize: this.batchSize
-      });
-      this.feedback.testLoss = result.dataSync()[0];
-      this.feedback.trainLoss = this.trainingLogs[
-        this.trainingLogs.length - 1
-      ].loss;
-      this.feedback.valLoss = this.trainingLogs[
-        this.trainingLogs.length - 1
-      ].val_loss;
-
-      this.isBusy = false;
-      this.isModalVisible = true;
     },
 
     async saveToLocalStorage() {

@@ -6,13 +6,14 @@ v-card
       strong.mr-2 Z-Distance:
       span {{predicted.z}}
   v-card-actions
-    v-btn.primary(v-if='!posenet' @click='startPosenet' :loading='isBusy')
+    v-spacer
+    v-btn.amber.darken-3(dark v-if='!posenet' @click='startPosenet' :loading='isBusy')
       | Start PoseNet
-      v-icon chevron_right
 </template>
 
 <script>
 import { mapState } from "vuex";
+import { getTrianglePerimeter } from "../lib/helpers";
 import * as tf from "@tensorflow/tfjs";
 
 export default {
@@ -92,23 +93,12 @@ export default {
           tf.tidy(() => {
             if (!this.pose) return;
 
-            const pose = tf.tensor2d(
-              [
-                this.pose.keypoints[0].position.x / this.canvas.width,
-                this.pose.keypoints[0].position.y / this.canvas.height,
-                this.pose.keypoints[1].position.x / this.canvas.width,
-                this.pose.keypoints[1].position.y / this.canvas.height,
-                this.pose.keypoints[2].position.x / this.canvas.width,
-                this.pose.keypoints[2].position.y / this.canvas.height,
-                this.pose.keypoints[3].position.x / this.canvas.width,
-                this.pose.keypoints[3].position.y / this.canvas.height,
-                this.pose.keypoints[4].position.x / this.canvas.width,
-                this.pose.keypoints[4].position.y / this.canvas.height
-              ],
-              [1, 10]
+            const perimeter = tf.tensor2d(
+              [getTrianglePerimeter(this.pose, [0, 1, 2])],
+              [1, 1]
             );
 
-            const z = this.model.predict(pose).dataSync();
+            const z = this.model.predict(perimeter).dataSync();
             this.predicted.z = `${z}`;
           });
         });
