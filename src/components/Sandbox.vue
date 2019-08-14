@@ -17,14 +17,16 @@ v-layout.p0(row wrap)
   v-flex(xs12 md6 lg8)
     v-card
       v-card-title Google Maps
-      v-card-text
-        #map(ref='map')
+      v-card-text(style='overflow: hidden; height: 600px; position: relative;')
+        img#wally(ref='wally' src='img/wally.jpeg')
+        //- #map(ref='map')
 </template>
 
 <script>
 import { mapState } from "vuex";
 import { getTotalPerimeter } from "../assets/js/helpers";
 import * as tf from "@tensorflow/tfjs";
+import { throttle } from "lodash";
 
 export default {
   name: "Sandbox",
@@ -43,17 +45,16 @@ export default {
   }),
 
   mounted() {
-    const $script = document.createElement("script");
-    $script.src =
-      "https://maps.googleapis.com/maps/api/js?key=AIzaSyDEVTOmkN6453pZDdszd5GwKjcDivu9oLA&callback=initMap";
-    document.body.appendChild($script);
-
-    window.initMap = () => {
-      this.$map = new window.google.maps.Map(this.$refs.map, {
-        center: { lat: 45.512384, lng: -122.662133 },
-        zoom: 13
-      });
-    };
+    // const $script = document.createElement("script");
+    // $script.src =
+    //   "https://maps.googleapis.com/maps/api/js?key=AIzaSyDEVTOmkN6453pZDdszd5GwKjcDivu9oLA&callback=initMap";
+    // document.body.appendChild($script);
+    // window.initMap = () => {
+    //   this.$map = new window.google.maps.Map(this.$refs.map, {
+    //     center: { lat: 45.512384, lng: -122.662133 },
+    //     zoom: 13
+    //   });
+    // };
   },
 
   methods: {
@@ -110,33 +111,31 @@ export default {
      * Runs inference
      */
     startInference() {
-      this.Scene.use("inferPose", () => {
-        tf.tidy(() => {
-          if (!this.pose) return;
+      this.Scene.use(
+        "inferPose",
+        throttle(() => {
+          tf.tidy(() => {
+            if (!this.pose) return;
 
-          const perimeter = tf.tensor2d(
-            [getTotalPerimeter(this.pose, [0, 1, 2])],
-            [1, 1]
-          );
-
-          const z = this.model
-            .predict(perimeter)
-            .asScalar()
-            .dataSync();
-
-          console.log(`${z}`);
-          this.$map.setZoom(-z);
-
-          this.$refs.overlay
-            .getContext("2d")
-            .clearRect(
-              0,
-              0,
-              this.$refs.overlay.width,
-              this.$refs.overlay.height
+            const perimeter = tf.tensor2d(
+              [getTotalPerimeter(this.pose, [0, 1, 2])],
+              [1, 1]
             );
-        });
-      });
+
+            const z = this.model
+              .predict(perimeter)
+              .asScalar()
+              .dataSync();
+
+            console.log(`${-z / 2}`);
+            this.$refs.wally.style = `width: ${-z * 100}px; left: ${this.pose
+              .keypoints[0].position.x *
+              2 -
+              1000}px; top: ${this.pose.keypoints[0].position.y * -2}px`;
+            // this.$map.setZoom(Math.floor(-z / 2));
+          });
+        }, 500)
+      );
     }
   }
 };
@@ -162,5 +161,10 @@ video, canvas {
 
 #map {
   height: 500px;
+}
+
+#wally {
+  position: absolute;
+  transition: left 500ms ease, top 500ms ease, width 500ms ease, height 500ms ease;
 }
 </style>
