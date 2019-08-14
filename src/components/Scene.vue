@@ -52,7 +52,15 @@ import { mapState } from "vuex";
 export default {
   name: "Scene",
 
-  computed: mapState(["posenet", "Scene", "pose", "isLoading", "isInferring"]),
+  computed: mapState([
+    "posenet",
+    "Scene",
+    "pose",
+    "isLoading",
+    "isInferring",
+    "$inferTarget",
+    "$inferCtx"
+  ]),
 
   watch: {
     "synthetic.yaw"(val) {
@@ -79,11 +87,11 @@ export default {
      */
     isInferring() {
       setTimeout(() => {
-        this.ctx.clearRect(
+        this.$inferCtx.clearRect(
           0,
           0,
-          this.$refs.overlay.width,
-          this.$refs.overlay.height
+          this.$inferTarget.width,
+          this.$inferTarget.height
         );
         // @todo this is smelly
       }, 100);
@@ -91,9 +99,6 @@ export default {
   },
 
   data: () => ({
-    // The drawing context for posenet keypoints
-    ctx: null,
-
     snackbar: {
       message: "",
       isVisible: false
@@ -111,8 +116,12 @@ export default {
   }),
 
   mounted() {
-    this.ctx = this.$refs.overlay.getContext("2d");
     this.$store.commit("set", ["Scene", new sceneSetup(this.$refs.scene)]);
+    this.$store.commit("set", ["$inferTarget", this.$refs.scene]);
+    this.$store.commit("set", [
+      "$inferCtx",
+      this.$refs.overlay.getContext("2d")
+    ]);
 
     // Events
     this.Bus.$on("startPosenet", this.maybeStartPosenet);
@@ -150,15 +159,15 @@ export default {
       this.Bus.$emit("PoseNetStarted");
 
       // Make sure overlay's canavas matches babylon's
-      dimensions.width = this.$refs.overlay.width = this.$refs.scene.width;
-      dimensions.height = this.$refs.overlay.height = this.$refs.scene.height;
+      dimensions.width = this.$inferCtx.width = this.$inferTarget.width;
+      dimensions.height = this.$inferCtx.height = this.$inferTarget.height;
       this.$store.commit("set", ["canvas", dimensions]);
 
       // Use PoseNet
       this.Scene.use("getPose", async () => {
         if (this.isInferring) {
           const newPose = await this.posenet.estimateSinglePose(
-            this.$refs.scene
+            this.$inferTarget
           );
           this.$store.commit("set", ["pose", newPose]);
 
@@ -174,25 +183,25 @@ export default {
      * Draws the detected keypoints
      */
     drawKeypoints() {
-      this.ctx.fillStyle = "#f0f";
-      this.ctx.clearRect(
+      this.$inferCtx.fillStyle = "#f0f";
+      this.$inferCtx.clearRect(
         0,
         0,
-        this.$refs.overlay.width,
-        this.$refs.overlay.height
+        this.$inferCtx.width,
+        this.$inferCtx.height
       );
       for (let i = 0; i < 5; i++) {
         // @TODO make this configurable
         if (this.pose.keypoints[i].score > 0.7) {
-          this.ctx.beginPath();
-          this.ctx.arc(
+          this.$inferCtx.beginPath();
+          this.$inferCtx.arc(
             this.pose.keypoints[i].position.x,
             this.pose.keypoints[i].position.y,
             8,
             0,
             2 * Math.PI
           );
-          this.ctx.fill();
+          this.$inferCtx.fill();
         }
       }
     },

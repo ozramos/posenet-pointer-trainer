@@ -10,11 +10,17 @@ export default new Vuex.Store({
       posenet: false
     },
 
+    isWebcamOn: false,
+
     // Whether we should be inferring on every loop
     isInferring: false,
 
     // The posenet object
     posenet: null,
+
+    // The video/canvas to run inference on
+    $inferTarget: null,
+    $inferCtx: null,
 
     // The last detected pose object
     pose: null,
