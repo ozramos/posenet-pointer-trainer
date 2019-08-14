@@ -35,7 +35,7 @@ v-layout.p0(row wrap)
         v-slider(step=0 v-model='synthetic.y' label='y' :min='-3' :max='3')
           template(v-slot:append)
             v-text-field(v-model='synthetic.y' type='number' style='width: 60px')
-        v-slider(step=0 v-model='synthetic.z' label='z' :min='-11' :max='-1')
+        v-slider(step=0 v-model='synthetic.z' label='z' :min='0' :max='20')
           template(v-slot:append)
             v-text-field(v-model='synthetic.z' type='number' style='width: 60px')
       v-card-actions
@@ -45,14 +45,22 @@ v-layout.p0(row wrap)
 </template>
 
 <script>
-import sceneSetup from "../lib/scene-setup.js";
+import sceneSetup from "../assets/js/scene-setup.js";
 import * as Posenet from "@tensorflow-models/posenet";
 import { mapState } from "vuex";
 
 export default {
   name: "Scene",
 
-  computed: mapState(["posenet", "Scene", "pose", "isLoading", "isInferring"]),
+  computed: mapState([
+    "posenet",
+    "Scene",
+    "pose",
+    "isLoading",
+    "isInferring",
+    "$inferTarget",
+    "$inferCtx"
+  ]),
 
   watch: {
     "synthetic.yaw"(val) {
@@ -71,7 +79,7 @@ export default {
       this.Scene.head.position.y = val;
     },
     "synthetic.z"(val) {
-      this.Scene.head.position.z = val;
+      this.Scene.head.position.z = -val;
     },
 
     /**
@@ -79,11 +87,11 @@ export default {
      */
     isInferring() {
       setTimeout(() => {
-        this.ctx.clearRect(
+        this.$inferCtx.clearRect(
           0,
           0,
-          this.$refs.overlay.width,
-          this.$refs.overlay.height
+          this.$inferTarget.width,
+          this.$inferTarget.height
         );
         // @todo this is smelly
       }, 100);
@@ -91,9 +99,6 @@ export default {
   },
 
   data: () => ({
-    // The drawing context for posenet keypoints
-    ctx: null,
-
     snackbar: {
       message: "",
       isVisible: false
@@ -106,13 +111,17 @@ export default {
       roll: 0,
       x: 0,
       y: 0,
-      z: -1
+      z: 0
     }
   }),
 
   mounted() {
-    this.ctx = this.$refs.overlay.getContext("2d");
     this.$store.commit("set", ["Scene", new sceneSetup(this.$refs.scene)]);
+    this.$store.commit("set", ["$inferTarget", this.$refs.scene]);
+    this.$store.commit("set", [
+      "$inferCtx",
+      this.$refs.overlay.getContext("2d")
+    ]);
 
     // Events
     this.Bus.$on("startPosenet", this.maybeStartPosenet);
@@ -150,18 +159,21 @@ export default {
       this.Bus.$emit("PoseNetStarted");
 
       // Make sure overlay's canavas matches babylon's
-      dimensions.width = this.$refs.overlay.width = this.$refs.scene.width;
-      dimensions.height = this.$refs.overlay.height = this.$refs.scene.height;
+      dimensions.width = this.$inferCtx.width = this.$inferTarget.width;
+      dimensions.height = this.$inferCtx.height = this.$inferTarget.height;
       this.$store.commit("set", ["canvas", dimensions]);
 
+      // Use PoseNet
       this.Scene.use("getPose", async () => {
         if (this.isInferring) {
           const newPose = await this.posenet.estimateSinglePose(
-            this.$refs.scene
+            this.$inferTarget
           );
           this.$store.commit("set", ["pose", newPose]);
 
-          this.Bus.$emit("newPose", newPose);
+          this.$nextTick(() => {
+            this.Bus.$emit("newPose", newPose);
+          });
           this.drawKeypoints();
         }
       });
@@ -171,8 +183,8 @@ export default {
      * Draws the detected keypoints
      */
     drawKeypoints() {
-      this.ctx.fillStyle = "#f0f";
-      this.ctx.clearRect(
+      this.$inferCtx.fillStyle = "#f0f";
+      this.$inferCtx.clearRect(
         0,
         0,
         this.$refs.overlay.width,
@@ -181,15 +193,15 @@ export default {
       for (let i = 0; i < 5; i++) {
         // @TODO make this configurable
         if (this.pose.keypoints[i].score > 0.7) {
-          this.ctx.beginPath();
-          this.ctx.arc(
+          this.$inferCtx.beginPath();
+          this.$inferCtx.arc(
             this.pose.keypoints[i].position.x,
             this.pose.keypoints[i].position.y,
-            10,
+            8,
             0,
             2 * Math.PI
           );
-          this.ctx.fill();
+          this.$inferCtx.fill();
         }
       }
     },

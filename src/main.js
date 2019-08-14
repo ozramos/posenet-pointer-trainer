@@ -5,6 +5,7 @@ import router from "./router";
 import store from "./store";
 
 import "vuetify/dist/vuetify.min.css";
+import "./assets/styl/main.styl";
 
 Vue.config.productionTip = false;
 Vue.use(Vuetify);

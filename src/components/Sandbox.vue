@@ -1,0 +1,170 @@
+<template lang="pug">
+v-layout.p0(row wrap)
+  v-flex(xs12 md6 lg4)
+    v-card
+      v-card-title Webcam
+      v-card-text
+        #webcam-wrap
+          video#webcam(ref='webcam' width=640 height=480)
+          canvas#webca-overlay(ref='overlay' width=640 height=480)
+      v-card-actions
+        v-spacer
+        v-btn.primary(v-if='!isWebcamOn' :loading='isLoading.posenet' @click='startWebcam')
+          v-icon.mr-2 videocam
+          | Start Webcam
+        v-btn.error(v-else @click='stopWebcam') Stop Webcam
+
+  v-flex(xs12 md6 lg8)
+    v-card
+      v-card-title Google Maps
+      v-card-text(style='overflow: hidden; height: 600px; position: relative;')
+        img#wally(ref='wally' src='img/wally.jpeg')
+        //- #map(ref='map')
+</template>
+
+<script>
+import { mapState } from "vuex";
+import { getTotalPerimeter } from "../assets/js/helpers";
+import * as tf from "@tensorflow/tfjs";
+import { throttle } from "lodash";
+
+export default {
+  name: "Sandbox",
+
+  computed: mapState([
+    "Scene",
+    "model",
+    "pose",
+    "isWebcamOn",
+    "isLoading",
+    "$inferTarget"
+  ]),
+
+  data: () => ({
+    $map: null
+  }),
+
+  mounted() {
+    // const $script = document.createElement("script");
+    // $script.src =
+    //   "https://maps.googleapis.com/maps/api/js?key=AIzaSyDEVTOmkN6453pZDdszd5GwKjcDivu9oLA&callback=initMap";
+    // document.body.appendChild($script);
+    // window.initMap = () => {
+    //   this.$map = new window.google.maps.Map(this.$refs.map, {
+    //     center: { lat: 45.512384, lng: -122.662133 },
+    //     zoom: 13
+    //   });
+    // };
+  },
+
+  methods: {
+    /**
+     * Starts a new media stream
+     */
+    startWebcam() {
+      window.navigator.mediaDevices
+        .getUserMedia({
+          video: {
+            width: 640,
+            height: 480
+          }
+        })
+        .then(stream => {
+          this.$refs.webcam.srcObject = stream;
+          this.$refs.webcam.play();
+          this.$store.commit("set", ["$inferTarget", this.$refs.webcam]);
+          this.$store.commit("set", [
+            "$inferCtx",
+            this.$refs.overlay.getContext("2d")
+          ]);
+          this.$store.commit("set", ["isWebcamOn", true]);
+
+          this.loadFromLocalStorage();
+          this.startInference();
+        });
+
+      this.Bus.$emit("startPosenet");
+    },
+
+    /**
+     * Kills the media stream
+     */
+    stopWebcam() {
+      this.debug.$webcam.srcObject.getTracks().forEach(track => track.stop());
+      this.$store.commit("set", ["isWebcamOn", false]);
+    },
+
+    /**
+     * Load model
+     */
+    async loadFromLocalStorage() {
+      try {
+        const model = await tf.loadLayersModel("localstorage://posenetPointer");
+        this.$store.commit("set", ["model", model]);
+        this.isReady = true;
+      } catch (e) {
+        console.log("No model found");
+      }
+    },
+
+    /**
+     * Runs inference
+     */
+    startInference() {
+      this.Scene.use(
+        "inferPose",
+        throttle(() => {
+          tf.tidy(() => {
+            if (!this.pose) return;
+
+            const perimeter = tf.tensor2d(
+              [getTotalPerimeter(this.pose, [0, 1, 2])],
+              [1, 1]
+            );
+
+            const z = this.model
+              .predict(perimeter)
+              .asScalar()
+              .dataSync();
+
+            console.log(`${-z / 2}`);
+            this.$refs.wally.style = `width: ${-z * 100}px; left: ${this.pose
+              .keypoints[0].position.x *
+              2 -
+              1000}px; top: ${this.pose.keypoints[0].position.y * -2}px`;
+            // this.$map.setZoom(Math.floor(-z / 2));
+          });
+        }, 500)
+      );
+    }
+  }
+};
+</script>
+
+<style lang="stylus">
+video, canvas {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform: scale(-1, 1);
+}
+
+#webcam-wrap {
+  position: relative;
+}
+
+#webca-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#map {
+  height: 500px;
+}
+
+#wally {
+  position: absolute;
+  transition: left 500ms ease, top 500ms ease, width 500ms ease, height 500ms ease;
+}
+</style>

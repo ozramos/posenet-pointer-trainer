@@ -12,11 +12,29 @@
 
     v-navigation-drawer(app v-model='sidebar.main')
       v-list(dense)
-        v-list-item(v-for='(item, key) in menu' :key='key' :to='item.to')
-          v-list-item-action
-            v-icon {{item.icon}}
-          v-list-item-content
-            v-list-item-title {{item.label}}
+        //- Main Menu
+        v-list-group(value='true')
+          template(v-slot:activator)
+            v-list-item-action
+              v-icon memory
+            v-list-item-title Build a Model
+          v-list-item(v-for='(item, key) in menu.main' :key='key' :to='item.to' :exact='item.exact')
+            v-list-item-action
+              v-icon {{item.icon}}
+            v-list-item-content
+              v-list-item-title {{item.label}}
+
+        //- Demos
+        v-list-group(value='')
+          template(v-slot:activator)
+            v-list-item-action
+              v-icon videogame_asset
+            v-list-item-title Demos
+          v-list-item(v-for='(item, key) in menu.demos' :key='key' :to='item.to')
+            v-list-item-action
+              v-icon {{item.icon}}
+            v-list-item-content
+              v-list-item-title {{item.label}}
 
     v-content
       v-container(grid-list-xl)
@@ -39,19 +57,41 @@ export default {
 
   computed: mapState(["isLoading", "posenet", "isInferring"]),
 
+  // Load collected data if present
+  mounted() {
+    const data = localStorage.getItem("training");
+    if (data) {
+      this.$store.commit("set", ["training", JSON.parse(data)]);
+    }
+  },
+
   data: () => ({
     pkg,
     sidebar: { main: true },
-    menu: [
-      { label: "About", icon: "info", to: { name: "Home" } },
-      {
-        label: "Step 1. Collect Data",
-        icon: "memory",
-        to: { name: "CollectData" }
-      },
-      { label: "Step 2. Train", icon: "school", to: { name: "Training" } },
-      { label: "Step 3. Use Model", icon: "android", to: { name: "UseModel" } }
-    ],
+    menu: {
+      main: [
+        { label: "About", icon: "info", to: { name: "Home" }, exact: true },
+        {
+          label: "Step 1. Collect Data",
+          icon: "memory",
+          to: { name: "CollectData" }
+        },
+        { label: "Step 2. Train", icon: "school", to: { name: "Training" } },
+        {
+          label: "Step 3. Check Model",
+          icon: "search",
+          to: { name: "CheckModel" }
+        }
+      ],
+
+      demos: [
+        {
+          label: "Sandbox",
+          icon: "beach_access",
+          to: { name: "Sandbox" }
+        }
+      ]
+    },
     Scene: Scene
   }),
 

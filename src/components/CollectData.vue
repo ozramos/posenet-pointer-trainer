@@ -9,12 +9,14 @@ div
         v-icon chevron_left
         | About
       v-spacer
-      v-btn.primary(v-if='!training.features.length' @click='collectData' :loading='isBusy')
+      v-btn.primary(@click='collectData' :loading='isBusy')
         | Collect Data
         v-icon.ml-1 assignment
-      v-btn.primary(v-else :to='{name: "Training"}')
+      v-btn.primary(v-if='training.features.length' :to='{name: "Training"}')
         | Training
         v-icon.ml-1 chevron_right
+    v-card-actions(v-if='isCollecting')
+      v-progress-linear(v-model='progress')
 
   v-card.mt-3(v-if='training.features.length' color='green lighten-3')
     v-card-title (optional) Save Data
@@ -36,6 +38,7 @@ div
 
 <script>
 import { mapState } from "vuex";
+import { getTotalPerimeter } from "../assets/js/helpers";
 
 export default {
   name: "CollectData",
@@ -51,6 +54,7 @@ export default {
   data: () => ({
     isCollecting: false,
     numSamples: 500,
+    progress: 0,
 
     snackbar: {
       downloaded: false,
@@ -67,6 +71,7 @@ export default {
   methods: {
     /**
      * Loop numSamples, collecting data with each loop
+     * - Clears existing data
      * - Autostarts posenet if it's not already started
      */
     collectData() {
@@ -74,6 +79,7 @@ export default {
       let curSampleIndex = 0;
       let training = { features: [], labels: [] };
 
+      localStorage.removeItem("training");
       this.Bus.$emit("startPosenet");
       this.isCollecting = true;
 
@@ -81,29 +87,14 @@ export default {
         if (!this.isCollecting) return;
 
         if (curSampleIndex < self.numSamples) {
-          // Labels = [Pitch, Yaw, Roll]
           if (self.hasValidKeypoints(pose)) {
             curSampleIndex++;
+            this.progress = (curSampleIndex / this.numSamples) * 100;
 
-            training.labels.push([
-              this.Scene.head.rotation.x,
-              this.Scene.head.rotation.y,
-              this.Scene.head.rotation.z
-            ]);
-
-            // Features [x1, y1...x5, y5]
-            training.features.push([
-              pose.keypoints[0].position.x / this.Scene.$canvas.width,
-              pose.keypoints[0].position.y / this.Scene.$canvas.height,
-              pose.keypoints[1].position.x / this.Scene.$canvas.width,
-              pose.keypoints[1].position.y / this.Scene.$canvas.height,
-              pose.keypoints[2].position.x / this.Scene.$canvas.width,
-              pose.keypoints[2].position.y / this.Scene.$canvas.height,
-              pose.keypoints[3].position.x / this.Scene.$canvas.width,
-              pose.keypoints[3].position.y / this.Scene.$canvas.height,
-              pose.keypoints[4].position.x / this.Scene.$canvas.width,
-              pose.keypoints[4].position.y / this.Scene.$canvas.height
-            ]);
+            // Normalized features [x1, y1...x5, y5]
+            training.features.push([getTotalPerimeter(pose)]);
+            // Labels = distance from screen
+            training.labels.push([-this.Scene.head.position.z]);
           }
 
           this.Scene.head.rotation.x =
@@ -115,7 +106,7 @@ export default {
 
           this.Scene.head.position.x = Math.random() * -10 + 5;
           this.Scene.head.position.y = Math.random() * -6 + 3;
-          this.Scene.head.position.z = Math.random() * -10 + 1;
+          this.Scene.head.position.z = Math.random() * -20;
 
           // Enable save buttons
         } else {

@@ -3,20 +3,21 @@ v-card
   v-card-title Use Model
   v-card-text
     h3
-      span.mr-2 Pitch
-      span {{predicted.pitch}}
+      strong.mr-2 Z-Distance:
+      span {{predicted.z}}
   v-card-actions
-    v-btn.primary(v-if='!posenet' @click='startPosenet' :loading='isBusy')
+    v-spacer
+    v-btn.amber.darken-3(dark v-if='!posenet' @click='startPosenet' :loading='isBusy')
       | Start PoseNet
-      v-icon chevron_right
 </template>
 
 <script>
 import { mapState } from "vuex";
+import { getTotalPerimeter } from "../assets/js/helpers";
 import * as tf from "@tensorflow/tfjs";
 
 export default {
-  name: "UseModel",
+  name: "CheckModel",
 
   computed: mapState(["model", "posenet", "Scene", "pose", "canvas"]),
 
@@ -25,11 +26,7 @@ export default {
     inferenceStarted: false,
     isReady: false,
 
-    predicted: {
-      pitch: 0,
-      yaw: 0,
-      roll: 0
-    }
+    predicted: { z: 0 }
   }),
 
   watch: {
@@ -96,24 +93,16 @@ export default {
           tf.tidy(() => {
             if (!this.pose) return;
 
-            const pose = tf.tensor2d(
-              [
-                this.pose.keypoints[0].position.x / this.canvas.width,
-                this.pose.keypoints[0].position.y / this.canvas.height,
-                this.pose.keypoints[1].position.x / this.canvas.width,
-                this.pose.keypoints[1].position.y / this.canvas.height,
-                this.pose.keypoints[2].position.x / this.canvas.width,
-                this.pose.keypoints[2].position.y / this.canvas.height,
-                this.pose.keypoints[3].position.x / this.canvas.width,
-                this.pose.keypoints[3].position.y / this.canvas.height,
-                this.pose.keypoints[4].position.x / this.canvas.width,
-                this.pose.keypoints[4].position.y / this.canvas.height
-              ],
-              [1, 10]
+            const perimeter = tf.tensor2d(
+              [getTotalPerimeter(this.pose, [0, 1, 2])],
+              [1, 1]
             );
 
-            const pitch = this.model.predict(pose).dataSync();
-            this.predicted.pitch = `${(pitch * 180) / Math.PI} || ${pitch}`;
+            const z = this.model
+              .predict(perimeter)
+              .asScalar()
+              .dataSync();
+            this.predicted.z = `${z}`;
           });
         });
       }
