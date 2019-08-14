@@ -13,6 +13,12 @@ v-layout.p0(row wrap)
           v-icon.mr-2 videocam
           | Start Webcam
         v-btn.error(v-else @click='stopWebcam') Stop Webcam
+
+  v-flex(xs12 md6 lg8)
+    v-card
+      v-card-title Google Maps
+      v-card-text
+        #map(ref='map')
 </template>
 
 <script>
@@ -31,6 +37,24 @@ export default {
     "isLoading",
     "$inferTarget"
   ]),
+
+  data: () => ({
+    $map: null
+  }),
+
+  mounted() {
+    const $script = document.createElement("script");
+    $script.src =
+      "https://maps.googleapis.com/maps/api/js?key=AIzaSyDEVTOmkN6453pZDdszd5GwKjcDivu9oLA&callback=initMap";
+    document.body.appendChild($script);
+
+    window.initMap = () => {
+      this.$map = new window.google.maps.Map(this.$refs.map, {
+        center: { lat: 45.512384, lng: -122.662133 },
+        zoom: 13
+      });
+    };
+  },
 
   methods: {
     /**
@@ -101,6 +125,16 @@ export default {
             .dataSync();
 
           console.log(`${z}`);
+          this.$map.setZoom(-z);
+
+          this.$refs.overlay
+            .getContext("2d")
+            .clearRect(
+              0,
+              0,
+              this.$refs.overlay.width,
+              this.$refs.overlay.height
+            );
         });
       });
     }
@@ -124,5 +158,9 @@ video, canvas {
   position: absolute;
   top: 0;
   left: 0;
+}
+
+#map {
+  height: 500px;
 }
 </style>

@@ -187,8 +187,8 @@ export default {
       this.$inferCtx.clearRect(
         0,
         0,
-        this.$inferCtx.width,
-        this.$inferCtx.height
+        this.$refs.overlay.width,
+        this.$refs.overlay.height
       );
       for (let i = 0; i < 5; i++) {
         // @TODO make this configurable
