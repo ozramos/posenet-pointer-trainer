@@ -17,10 +17,20 @@ v-layout.p0(row wrap)
 
 <script>
 import { mapState } from "vuex";
+import { getTotalPerimeter } from "../assets/js/helpers";
+import * as tf from "@tensorflow/tfjs";
+
 export default {
   name: "Sandbox",
 
-  computed: mapState(["isWebcamOn", "isLoading", "$inferTarget"]),
+  computed: mapState([
+    "Scene",
+    "model",
+    "pose",
+    "isWebcamOn",
+    "isLoading",
+    "$inferTarget"
+  ]),
 
   methods: {
     /**
@@ -43,6 +53,9 @@ export default {
             this.$refs.overlay.getContext("2d")
           ]);
           this.$store.commit("set", ["isWebcamOn", true]);
+
+          this.loadFromLocalStorage();
+          this.startInference();
         });
 
       this.Bus.$emit("startPosenet");
@@ -54,6 +67,42 @@ export default {
     stopWebcam() {
       this.debug.$webcam.srcObject.getTracks().forEach(track => track.stop());
       this.$store.commit("set", ["isWebcamOn", false]);
+    },
+
+    /**
+     * Load model
+     */
+    async loadFromLocalStorage() {
+      try {
+        const model = await tf.loadLayersModel("localstorage://posenetPointer");
+        this.$store.commit("set", ["model", model]);
+        this.isReady = true;
+      } catch (e) {
+        console.log("No model found");
+      }
+    },
+
+    /**
+     * Runs inference
+     */
+    startInference() {
+      this.Scene.use("inferPose", () => {
+        tf.tidy(() => {
+          if (!this.pose) return;
+
+          const perimeter = tf.tensor2d(
+            [getTotalPerimeter(this.pose, [0, 1, 2])],
+            [1, 1]
+          );
+
+          const z = this.model
+            .predict(perimeter)
+            .asScalar()
+            .dataSync();
+
+          console.log(`${z}`);
+        });
+      });
     }
   }
 };
