@@ -24,18 +24,6 @@
             v-list-item-content
               v-list-item-title {{item.label}}
 
-        //- Demos
-        v-list-group(value='')
-          template(v-slot:activator)
-            v-list-item-action
-              v-icon videogame_asset
-            v-list-item-title Demos
-          v-list-item(v-for='(item, key) in menu.demos' :key='key' :to='item.to')
-            v-list-item-action
-              v-icon {{item.icon}}
-            v-list-item-content
-              v-list-item-title {{item.label}}
-
     v-content
       v-container(grid-list-xl)
         router-view
@@ -81,14 +69,6 @@ export default {
           label: "Step 3. Check Model",
           icon: "search",
           to: { name: "CheckModel" }
-        }
-      ],
-
-      demos: [
-        {
-          label: "Sandbox",
-          icon: "beach_access",
-          to: { name: "Sandbox" }
         }
       ]
     },

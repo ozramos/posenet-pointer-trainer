@@ -159,8 +159,9 @@ export default {
       this.Bus.$emit("PoseNetStarted");
 
       // Make sure overlay's canavas matches babylon's
-      dimensions.width = this.$inferCtx.width = this.$inferTarget.width;
-      dimensions.height = this.$inferCtx.height = this.$inferTarget.height;
+      dimensions.width = this.$refs.overlay.width = this.$inferCtx.width = this.$refs.scene.width;
+      dimensions.height = this.$refs.overlay.height = this.$inferCtx.height = this.$refs.scene.height;
+      console.log(dimensions.width);
       this.$store.commit("set", ["canvas", dimensions]);
 
       // Use PoseNet
